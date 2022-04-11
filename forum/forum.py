@@ -51,16 +51,30 @@ def addpost():
 
 	return render_template("createpost.html", subforum=subforum)
 
+#@login_required
+#@app.route('/addpost')
+# def private_addpost():
+# 	subforum_id = int(request.args.get("sub"))
+# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
+# 	if not subforum:
+# 		return error("That subforum does not exist!")
+#
+# 	return render_template("createpost.html", subforum=subforum)
+
 @app.route('/viewpost')
 def viewpost():
 	postid = int(request.args.get("post"))
 	post = Post.query.filter(Post.id == postid).first()
+	if post.private:
+		if not current_user:
+			return error('login')
 	if not post:
 		return error("That post does not exist!")
 	if not post.subforum.path:
 		subforum.path = generateLinkPath(post.subforum.id)
 	comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc()) # no need for scalability now
 	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+
 
 #ACTIONS
 
@@ -241,14 +255,17 @@ class Post(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
+	private = db.Column(db.Boolean, default=False)
 
 	#cache stuff
 	lastcheck = None
 	savedresponce = None
-	def __init__(self, title, content, postdate):
+	def __init__(self, title, content, postdate, private):
 		self.title = title
 		self.content = content
 		self.postdate = postdate
+		self.private = private
+
 	def get_time_string(self):
 		#this only needs to be calculated every so often, not for every request
 		#this can be a rudamentary chache
