@@ -323,6 +323,8 @@ class Comment(db.Model):
     postdate = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+    # Add parent key
+    parent_id = db.ForeignKey("self", null=True, Blank=True)
 
     lastcheck = None
     savedresponce = None
@@ -330,6 +332,19 @@ class Comment(db.Model):
     def __init__(self, content, postdate):
         self.content = content
         self.postdate = postdate
+
+    class Meta:
+        ordering = ['postdate']
+
+    # Add Children instance method
+    def children(self):  # replies
+        return Comment.objects.filter(parent_id=self)
+
+    @property
+    def is_parent(self):
+        if self.parent is not None:
+            return False
+        return True
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
