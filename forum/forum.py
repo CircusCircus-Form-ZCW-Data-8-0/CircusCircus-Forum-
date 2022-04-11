@@ -145,9 +145,9 @@ def action_createaccount():
 	if not valid_username(username):
 		errors.append("Username is not valid!")
 		retry = True
-	# if not valid_password(password):
-	# 	errors.append("Password is not valid!")
-	# 	retry = True
+	if not valid_password(password):
+		errors.append("Password is not valid!")
+		retry = True
 	if retry:
 		return render_template("login.html", errors=errors)
 	user = User(email, username, password)
