@@ -51,6 +51,16 @@ def addpost():
 
 	return render_template("createpost.html", subforum=subforum)
 
+#@login_required
+#@app.route('/addpost')
+# def private_addpost():
+# 	subforum_id = int(request.args.get("sub"))
+# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
+# 	if not subforum:
+# 		return error("That subforum does not exist!")
+#
+# 	return render_template("createpost.html", subforum=subforum)
+
 @app.route('/viewpost')
 def viewpost():
 	postid = int(request.args.get("post"))
@@ -61,6 +71,20 @@ def viewpost():
 		subforum.path = generateLinkPath(post.subforum.id)
 	comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc()) # no need for scalability now
 	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+
+#@login_required
+# @app.route('/viewpost')
+# def private_viewpost():
+# 	postid = int(request.args.get("post"))
+# 	post = Post.query.filter(Post.id == postid).first()
+# 	if not post:
+# 		return error("That post does not exist!")
+# 	if not post.subforum.path:
+# 		subforum.path = generateLinkPath(post.subforum.id)
+# 	comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc()) # no need for scalability now
+# 	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+
+
 
 #ACTIONS
 
