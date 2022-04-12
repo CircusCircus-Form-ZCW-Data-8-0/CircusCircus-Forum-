@@ -145,9 +145,21 @@ def action_login():
 @login_required
 @app.route('/action_logout')
 def action_logout():
-    # todo
-    logout_user()
-    return redirect("/")
+
+	#todo
+	logout_user()
+	return redirect("/")
+"""
+This is User Account setting -Vandana
+"""
+@login_required
+@app.route('/action_account')
+def action_account():
+  #image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db
+ # image_file = url_for('static', filename='profile/default.jpeg')
+  return render_template('account.html',title='Account1')#,image_file=image_file) #assigning image_file to db
+
+
 
 
 @app.route('/action_createaccount', methods=['POST'])
@@ -254,22 +266,24 @@ def valid_content(content):
 
 # OBJECT MODELS
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Text, unique=True)
-    password_hash = db.Column(db.Text)
-    email = db.Column(db.Text, unique=True)
-    admin = db.Column(db.Boolean, default=False, unique=True)
-    posts = db.relationship("Post", backref="user")
-    comments = db.relationship("Comment", backref="user")
 
-    def __init__(self, email, username, password):
-        self.email = email
-        self.username = username
-        self.password_hash = generate_password_hash(password)
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.Text, unique=True)
+	password_hash = db.Column(db.Text)
+	email = db.Column(db.Text, unique=True)
+	admin = db.Column(db.Boolean, default=False, unique=True)
+	posts = db.relationship("Post", backref="user")
+	comments = db.relationship("Comment", backref="user")
+	#image_file = db.Column(db.Text, default='default.jpeg')
+    #image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
+	def __init__(self, email, username, password):
+		self.email = email
+		self.username = username
+		self.password_hash = generate_password_hash(password)
+    
+	def check_password(self, password):
+		return check_password_hash(self.password_hash, password)
 
 class Post(db.Model):
 
