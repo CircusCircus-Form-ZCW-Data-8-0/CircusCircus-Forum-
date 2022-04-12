@@ -128,6 +128,17 @@ def action_logout():
 	#todo
 	logout_user()
 	return redirect("/")
+"""
+This is User Account setting -Vandana
+"""
+@login_required
+@app.route('/action_account')
+def action_account():
+  #image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db
+ # image_file = url_for('static', filename='profile/default.jpeg')
+  return render_template('account.html',title='Account1')#,image_file=image_file) #assigning image_file to db
+
+
 
 @app.route('/action_createaccount', methods=['POST'])
 def action_createaccount():
@@ -226,6 +237,8 @@ class User(UserMixin, db.Model):
 	admin = db.Column(db.Boolean, default=False, unique=True)
 	posts = db.relationship("Post", backref="user")
 	comments = db.relationship("Comment", backref="user")
+	#image_file = db.Column(db.Text, default='default.jpeg')
+    #image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
 
 	def __init__(self, email, username, password):
 		self.email = email
