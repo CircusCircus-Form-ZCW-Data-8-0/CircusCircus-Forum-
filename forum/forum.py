@@ -1,18 +1,16 @@
 from flask import *
-# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
-import datetime
-
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
-
-from flask_login import UserMixin
 import re
 import datetime
 from flask_login.login_manager import LoginManager
-from werkzeug.security import generate_password_hash, check_password_hash
 
+from forum.model import Subforum
+from forum.model import Post
+from forum.model import Comment
+from forum.model import User
 db = SQLAlchemy(app)
 
 
@@ -38,10 +36,6 @@ def subforum():
     return render_template("subforum.html", subforum=subforum, posts=posts, subforums=subforums, path=subforum.path)
 
 
-@app.route('/loginform')
-def loginform():
-    return render_template("login.html")
-
 
 @login_required
 @app.route('/addpost')
@@ -54,8 +48,8 @@ def addpost():
     return render_template("createpost.html", subforum=subforum)
 
 
-#@login_required
-#@app.route('/addpost')
+# @login_required
+# @app.route('/addpost')
 # def private_addpost():
 # 	subforum_id = int(request.args.get("sub"))
 # 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
@@ -66,21 +60,18 @@ def addpost():
 
 @app.route('/viewpost')
 def viewpost():
-
-	postid = int(request.args.get("post"))
-	post = Post.query.filter(Post.id == postid).first()
-#	if post.private:
-#		if not current_user:
-#			return error('login')
-	if not post:
-		return error("That post does not exist!")
-	if not post.subforum.path:
-		subforum.path = generateLinkPath(post.subforum.id)
-	comments = Comment.query.filter(Comment.post_id == postid).order_by(
-    Comment.id.desc()) # no need for scalability now
-	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
-
-
+    postid = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == postid).first()
+    #	if post.private:
+    #		if not current_user:
+    #			return error('login')
+    if not post:
+        return error("That post does not exist!")
+    if not post.subforum.path:
+        subforum.path = generateLinkPath(post.subforum.id)
+    comments = Comment.query.filter(Comment.post_id == postid).order_by(
+        Comment.id.desc())  # no need for scalability now
+    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
 
 @login_required
@@ -128,70 +119,6 @@ def action_post():
     return redirect("/viewpost?post=" + str(post.id))
 
 
-@app.route('/action_login', methods=['POST'])
-def action_login():
-    username = request.form['username']
-    password = request.form['password']
-    user = User.query.filter(User.username == username).first()
-    if user and user.check_password(password):
-        login_user(user)
-    else:
-        errors = []
-        errors.append("Username or password is incorrect!")
-        return render_template("login.html", errors=errors)
-    return redirect("/")
-
-
-@login_required
-@app.route('/action_logout')
-def action_logout():
-
-	#todo
-	logout_user()
-	return redirect("/")
-"""
-This is User Account setting -Vandana
-"""
-@login_required
-@app.route('/action_account')
-def action_account():
-  #image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db
- # image_file = url_for('static', filename='profile/default.jpeg')
-  return render_template('account.html',title='Account1')#,image_file=image_file) #assigning image_file to db
-
-
-
-
-@app.route('/action_createaccount', methods=['POST'])
-def action_createaccount():
-    username = request.form['username']
-    password = request.form['password']
-    email = request.form['email']
-    errors = []
-    retry = False
-    if username_taken(username):
-        errors.append("Username is already taken!")
-        retry = True
-    if email_taken(email):
-        errors.append("An account already exists with this email!")
-        retry = True
-    if not valid_username(username):
-        errors.append("Username is not valid!")
-        retry = True
-    if not valid_password(password):
-        errors.append("Password is not valid!")
-        retry = True
-    if retry:
-        return render_template("login.html", errors=errors)
-    user = User(email, username, password)
-    if user.username == "admin":
-        user.admin = True
-    db.session.add(user)
-    db.session.commit()
-    login_user(user)
-    return redirect("/")
-
-
 def error(errormessage):
     return "<b style=\"color: red;\">" + errormessage + "</b>"
 
@@ -234,25 +161,6 @@ password_regex = re.compile("^[a-zA-Z0-9!@#%&]{6,40}$")
 username_regex = re.compile("^[a-zA-Z0-9!@#%&]{4,40}$")
 
 
-# Account checks
-def username_taken(username):
-    return User.query.filter(User.username == username).first()
-
-
-def email_taken(email):
-    return User.query.filter(User.email == email).first()
-
-
-def valid_username(username):
-    if not username_regex.match(username):
-        # username does not meet password reqirements
-        return False
-    # username is not taken and does meet the password requirements
-    return True
-
-
-def valid_password(password):
-    return password_regex.match(password)
 
 
 # Post checks
@@ -263,143 +171,6 @@ def valid_title(title):
 def valid_content(content):
     return len(content) > 10 and len(content) < 5000
 
-
-# OBJECT MODELS
-class User(UserMixin, db.Model):
-
-	id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.Text, unique=True)
-	password_hash = db.Column(db.Text)
-	email = db.Column(db.Text, unique=True)
-	admin = db.Column(db.Boolean, default=False, unique=True)
-	posts = db.relationship("Post", backref="user")
-	comments = db.relationship("Comment", backref="user")
-	#image_file = db.Column(db.Text, default='default.jpeg')
-    #image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
-
-	def __init__(self, email, username, password):
-		self.email = email
-		self.username = username
-		self.password_hash = generate_password_hash(password)
-    
-	def check_password(self, password):
-		return check_password_hash(self.password_hash, password)
-
-class Post(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text)
-    content = db.Column(db.Text)
-    comments = db.relationship("Comment", backref="post")
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
-    postdate = db.Column(db.DateTime)
-#	  private = db.Column(db.Boolean, default=False)
-    
-    # cache stuff
-    lastcheck = None
-    savedresponce = None
-
-    def __init__(self, title, content, postdate):
-        self.title = title
-        self.content = content
-        self.postdate = postdate
-#   		self.private = private
-        
-    def get_time_string(self):
-        # this only needs to be calculated every so often, not for every request
-        # this can be a rudamentary chache
-        now = datetime.datetime.now()
-        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
-            self.lastcheck = now
-        else:
-            return self.savedresponce
-
-        diff = now - self.postdate
-
-        seconds = diff.total_seconds()
-        print(seconds)
-        if seconds / (60 * 60 * 24 * 30) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
-        elif seconds / (60 * 60 * 24) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24))) + " days ago"
-        elif seconds / (60 * 60) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
-        elif seconds / (60) > 1:
-            self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
-        else:
-            self.savedresponce = "Just a moment ago!"
-
-        return self.savedresponce
-
-
-
-class Subforum(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text, unique=True)
-    description = db.Column(db.Text)
-    subforums = db.relationship("Subforum")
-    parent_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
-    posts = db.relationship("Post", backref="subforum")
-    path = None
-    hidden = db.Column(db.Boolean, default=False)
-
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
-
-
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text)
-    postdate = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-    # Add parent key
-    parent_id = db.ForeignKey("self", null=True, Blank=True)
-
-    lastcheck = None
-    savedresponce = None
-
-    def __init__(self, content, postdate):
-        self.content = content
-        self.postdate = postdate
-
-    class Meta:
-        ordering = ['postdate']
-
-    # Add Children instance method
-    def children(self):  # replies
-        return Comment.objects.filter(parent_id=self)
-
-    @property
-    def is_parent(self):
-        if self.parent is not None:
-            return False
-        return True
-
-    def get_time_string(self):
-        # this only needs to be calculated every so often, not for every request
-        # this can be a rudamentary chache
-        now = datetime.datetime.now()
-        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
-            self.lastcheck = now
-        else:
-            return self.savedresponce
-
-        diff = now - self.postdate
-        seconds = diff.total_seconds()
-        if seconds / (60 * 60 * 24 * 30) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
-        elif seconds / (60 * 60 * 24) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24))) + " days ago"
-        elif seconds / (60 * 60) > 1:
-            self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
-        elif seconds / (60) > 1:
-            self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
-        else:
-            self.savedresponce = "Just a moment ago!"
-        return self.savedresponce
 
 
 def init_site():
