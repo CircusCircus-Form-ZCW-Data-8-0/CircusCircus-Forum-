@@ -29,7 +29,7 @@
 	
 
 	{% if current_user.is_authenticated %}
-	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment">
+	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment" value="Reply">
 
 	{% else %}
 	<a href="/loginform">Login or register to make a comment</a>
@@ -49,6 +49,11 @@
 		
 		<div class="commenttime">
 			{{ comment.get_time_string() }}
+		</div>
+			<form action="/action_comment?post={{ post.id }}" method="POST">
+				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
+				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
+			</form>
 		</div>
 	</div>
 	<br>
