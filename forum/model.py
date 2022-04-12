@@ -1,11 +1,28 @@
+from flask import *
+# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
+from flask_login import LoginManager, current_user, login_user, logout_user
+import datetime
+
+from flask_login.utils import login_required
 from forum.app import app
 import forum.forum
 from flask_sqlalchemy import SQLAlchemy
+
 from flask_login import UserMixin
+import re
 import datetime
+from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from forum.log_in_out import *
+from forum.forum import *
+from forum.user_setting import *
+from forum.create_account import *
+
+
+
 db = SQLAlchemy(app)
+
 
 # OBJECT MODELS
 class User(UserMixin, db.Model):
@@ -17,8 +34,8 @@ class User(UserMixin, db.Model):
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
-    # image_file = db.Column(db.Text, default='default.jpeg')
-    # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
+        # image_file = db.Column(db.Text, default='default.jpeg')
+        # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
 
     def __init__(self, email, username, password):
         self.email = email
@@ -37,7 +54,6 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
-    #	  private = db.Column(db.Boolean, default=False)
 
     # cache stuff
     lastcheck = None
@@ -47,8 +63,7 @@ class Post(db.Model):
         self.title = title
         self.content = content
         self.postdate = postdate
-
-    #   		self.private = private
+        # self.private = private
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
@@ -101,6 +116,7 @@ class Comment(db.Model):
     # Add parent key
     parent_id = db.ForeignKey("self", null=True, Blank=True)
 
+
     lastcheck = None
     savedresponce = None
 
@@ -120,6 +136,10 @@ class Comment(db.Model):
         if self.parent is not None:
             return False
         return True
+
+    def __init__(self, content, postdate):
+        self.content = content
+        self.postdate = postdate
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
@@ -144,3 +164,4 @@ class Comment(db.Model):
             self.savedresponce = "Just a moment ago!"
         return self.savedresponce
 
+db.create_all()
