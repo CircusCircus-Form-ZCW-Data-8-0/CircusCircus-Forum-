@@ -17,13 +17,14 @@
 		{{post.content}}
 	</div>
 
+
 </div>
 <div class="addcomment" id="addcomment">
 	<form action="/action_comment?post={{ post.id }}" method="POST">
 		<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
 		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Like">
-		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Delete">
+		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Dislike">
 	</form>
 </div>
 <div style="text-align: center;">
@@ -55,6 +56,7 @@
 			<form action="/action_comment?post={{ post.id }}" method="POST">
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
+
 			</form>
 		</div>
 	</div>
@@ -78,7 +80,20 @@ function toggle(){
 }
 </script>
 
+<script type="text/javascript">
+function toggle(){
+	var div = document.getElementById("addcomment");
+	var button = document.getElementById("displayaddcomment")
+	if(div.style.display == "none" || div.style.display.trim() == ""){
+		div.style.display = "inline";
+		button.value="Hide";
+	}else{
+		div.style.display = "none";
+		button.value="Add a comment"
+	}
 
+}
+</script>
 {% endblock %}
 
 

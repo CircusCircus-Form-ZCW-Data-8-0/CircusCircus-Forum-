@@ -89,6 +89,31 @@ def comment():
     db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
 
+@login_required
+@app.route('/action_like/<int:post_id>/<action>')
+# @app.route('/action_like/<int:post_id>/<action>', methods=['POST', 'GET'])
+def action_like(post_id, action):
+    post = Post.query.filter_by(id=post_id).first()
+    if action == 'like':
+        current_user.like_post(post)
+        db.session.commit()
+    if action == 'unlike':
+        current_user.unlike_post(post)
+        db.session.commit()
+    return redirect(request.referrer)
+
+@login_required
+@app.route('/action_dislike/<int:post_id>/<action>')
+# @app.route('/action_like/<int:post_id>/<action>', methods=['POST', 'GET'])
+def action_dislike(post_id, action):
+    post = Post.query.filter_by(id=post_id).first()
+    if action == 'dislike':
+        current_user.dislike_post(post)
+        db.session.commit()
+    if action == 'undislike':
+        current_user.undislike_post(post)
+        db.session.commit()
+    return redirect(request.referrer)
 
 @login_required
 @app.route('/action_post', methods=['POST'])
