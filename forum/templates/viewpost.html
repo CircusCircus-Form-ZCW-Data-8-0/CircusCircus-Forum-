@@ -1,3 +1,5 @@
+
+
 {% extends 'layout.html' %}
 {% block body %}
 {{ path|safe}}
@@ -22,12 +24,13 @@
 	<form action="/action_comment?post={{ post.id }}" method="POST">
 		<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
+		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Like">
+		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Delete">
+
+
 	</form>
 </div>
 <div style="text-align: center;">
-
-	
-
 	{% if current_user.is_authenticated %}
 	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment">
 
@@ -38,21 +41,21 @@
 {%if comments%}
 <div class="comments">
 {% for comment in comments %}
-	
+
 	<div class="comment">
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) -
 		</div>
 		<div class="commentcontent">
 			{{ comment.content }}
 		</div>
-		
+
 		<div class="commenttime">
 			{{ comment.get_time_string() }}
 		</div>
 	</div>
 	<br>
-	
+
 {% endfor %}
 </div>
 {% endif %}
@@ -67,11 +70,12 @@ function toggle(){
 		div.style.display = "none";
 		button.value="Add a comment"
 	}
-	
+
 }
 </script>
 
 
 {% endblock %}
+
 
 

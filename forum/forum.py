@@ -40,7 +40,6 @@ def subforum():
 def loginform():
 	return render_template("login.html")
 
-
 @login_required
 @app.route('/addpost')
 def addpost():
