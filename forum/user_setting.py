@@ -5,8 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 from forum.model import *
 from forum.forum import *
-from forum.log_in_out import *
-from forum.create_account import *
 
 
 @login_required
