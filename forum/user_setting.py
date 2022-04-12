@@ -2,7 +2,11 @@ from flask import *
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy(app)
+
+from forum.model import *
+from forum.forum import *
+from forum.log_in_out import *
+from forum.create_account import *
 
 
 @login_required

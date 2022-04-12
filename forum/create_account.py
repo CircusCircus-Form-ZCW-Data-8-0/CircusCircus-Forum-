@@ -3,9 +3,10 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
 
-from forum.forum import username_regex
-from forum.model import User
-db = SQLAlchemy(app)
+from forum.model import *
+from forum.forum import *
+from forum.user_setting import *
+from forum.log_in_out import *
 
 
 # Account checks

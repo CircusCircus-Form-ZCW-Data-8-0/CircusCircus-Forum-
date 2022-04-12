@@ -7,12 +7,10 @@ import re
 import datetime
 from flask_login.login_manager import LoginManager
 
-from forum.model import Subforum
-from forum.model import Post
-from forum.model import Comment
-from forum.model import User
-db = SQLAlchemy(app)
-
+from forum.model import *
+from forum.user_setting import *
+from forum.create_account import *
+from forum.log_in_out import *
 
 # VIEWS
 

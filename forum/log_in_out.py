@@ -2,11 +2,11 @@
 from flask import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 from flask_login.utils import login_required
-from forum.app import app
-from flask_sqlalchemy import SQLAlchemy
-from forum.model import User
-db = SQLAlchemy(app)
 
+from forum.model import *
+from forum.forum import *
+from forum.user_setting import *
+from forum.create_account import *
 
 @app.route('/loginform')
 def loginform():
