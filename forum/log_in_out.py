@@ -1,4 +1,4 @@
-
+import forum.forum
 from flask import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 from flask_login.utils import login_required

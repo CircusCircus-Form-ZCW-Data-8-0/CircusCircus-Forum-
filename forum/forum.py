@@ -6,11 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 import re
 import datetime
 from flask_login.login_manager import LoginManager
-
+from forum.links import links
 from forum.model import Subforum
 from forum.model import Post
 from forum.model import Comment
 from forum.model import User
+
 db = SQLAlchemy(app)
 
 
@@ -83,6 +84,7 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
     postdate = datetime.datetime.now()
+    # content2 = links(content)
     comment = Comment(content, postdate)
     current_user.comments.append(comment)
     post.comments.append(comment)

@@ -2,6 +2,7 @@ from flask import *
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
+import forum.forum
 db = SQLAlchemy(app)
 
 
