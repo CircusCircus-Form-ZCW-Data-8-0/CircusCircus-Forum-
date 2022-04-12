@@ -26,6 +26,9 @@ class User(UserMixin, db.Model):
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
+        # image_file = db.Column(db.Text, default='default.jpeg')
+        # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
+
     def __init__(self, email, username, password):
         self.email = email
         self.username = username
@@ -52,6 +55,7 @@ class Post(db.Model):
         self.title = title
         self.content = content
         self.postdate = postdate
+        # self.private = private
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
@@ -101,9 +105,29 @@ class Comment(db.Model):
     postdate = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+    # Add parent key
+    parent_id = db.ForeignKey("self", null=True, Blank=True)
+
 
     lastcheck = None
     savedresponce = None
+
+    def __init__(self, content, postdate):
+        self.content = content
+        self.postdate = postdate
+
+    class Meta:
+        ordering = ['postdate']
+
+    # Add Children instance method
+    def children(self):  # replies
+        return Comment.objects.filter(parent_id=self)
+
+    @property
+    def is_parent(self):
+        if self.parent is not None:
+            return False
+        return True
 
     def __init__(self, content, postdate):
         self.content = content
