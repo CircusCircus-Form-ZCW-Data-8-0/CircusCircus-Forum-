@@ -65,7 +65,7 @@
 	font-weight: bold;
 }
 .subforumtitle{
-	color: blue;
+	color: black;
 	font-size: 15pt;
 	font-weight: bold;
 }
@@ -188,4 +188,10 @@
 }
 .varwidth{
 	width: 50%;
+}
+
+.account-heading {
+ 	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
 }

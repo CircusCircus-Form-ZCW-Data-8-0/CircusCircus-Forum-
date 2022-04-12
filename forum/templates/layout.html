@@ -26,5 +26,22 @@
 </div>
 </body>
 
+<div class="page">
+	<div class="footer">
+		{% include 'footer.html' %}
+	</div>
+	{% if errors %}
+	<div class="errors">
+	{% for error in errors %}
+		<p class="error">
+			{{ error }}
+		</p>
+
+	{% endfor %}
+	</div>
+{% endif %}
+	<div class="content">
+		{% block footer %}{% endblock %}
+
 
 </html>
