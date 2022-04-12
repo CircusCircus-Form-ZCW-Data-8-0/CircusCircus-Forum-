@@ -65,9 +65,9 @@ def addpost():
 def viewpost():
 	postid = int(request.args.get("post"))
 	post = Post.query.filter(Post.id == postid).first()
-	if post.private:
-		if not current_user:
-			return error('login')
+#	if post.private:
+#		if not current_user:
+#			return error('login')
 	if not post:
 		return error("That post does not exist!")
 	if not post.subforum.path:
@@ -255,16 +255,16 @@ class Post(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
-	private = db.Column(db.Boolean, default=False)
+#	private = db.Column(db.Boolean, default=False)
 
 	#cache stuff
 	lastcheck = None
 	savedresponce = None
-	def __init__(self, title, content, postdate, private):
+	def __init__(self, title, content, postdate):
 		self.title = title
 		self.content = content
 		self.postdate = postdate
-		self.private = private
+#		self.private = private
 
 	def get_time_string(self):
 		#this only needs to be calculated every so often, not for every request
