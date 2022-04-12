@@ -2,14 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="104ecbb5-3205-49b1-a4f6-98d471abbbe3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/forum/images/chat.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/forum/images/heart_emoji.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/forum/images/hug_emoji.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forum/static/profile /default.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forum/templates/account.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forum/templates/footer.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forum/templates/picture/poke.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/CircusCircus-Forum-.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CircusCircus-Forum-.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/forum/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/forum.py" beforeDir="false" afterPath="$PROJECT_DIR$/forum/forum.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forum/static/bootstrap.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/forum/static/bootstrap.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forum/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/forum/static/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/templates/createpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/createpost.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/templates/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forum/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/layout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/templates/viewpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/viewpost.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
