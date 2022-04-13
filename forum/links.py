@@ -1,5 +1,5 @@
 import re
-# from Flask import Markup
+from flask import Markup
 #
 # url_label = Markup("<a href='YOUR_URL'>Main Website</a>")
 content = "These are the links https://www.google.com  and http://stackoverflow.com/questions/839994/extracting-a-url-in-python"
@@ -7,15 +7,17 @@ content = "These are the links https://www.google.com  and http://stackoverflow.
 def links(content):
     new_content = ''
     # for word in content.split():
-    word2 = re.search(r'(https?://[^\s]+)', content)
+    pattern = re.compile(r'(https?://[^\s]+)')
+    word2 = re.search(pattern, content).group(1)
     if word2 is not None:
-        link_string = '<a href = "'
-        link_string = link_string + word2
-        link_string = link_string + '">'
-        link_name = word2.split('.')[1]
-        link_string = link_string + link_name + '</a><br>\n'
-        new_content += link_string
-    return new_content
+        # link_string = '<a href = "'
+        # link_string = link_string + word2
+        # link_string = link_string + '">'
+        # link_name = word2.split('.')[1]
+        # link_string = link_string + link_name + '</a><br>\n'
+        # new_content += link_string
+        url_label = Markup(f"<a href='{word2}'></a>")
+        return url_label
 
 # links(content)
 # @login_required
