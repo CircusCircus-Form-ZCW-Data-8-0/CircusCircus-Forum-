@@ -19,7 +19,6 @@ def links(content):
         url_label = Markup(f"<a href='{word2}'></a>")
         return url_label
 
-
 # links(content)
 # @login_required
 # @app.route('/action_post', methods=['POST'])
