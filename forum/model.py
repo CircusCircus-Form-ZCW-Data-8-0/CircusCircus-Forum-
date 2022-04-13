@@ -16,9 +16,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forum.forum import *
 from forum.user_setting import *
 
-
-
-
 db = SQLAlchemy(app)
 
 
@@ -32,8 +29,8 @@ class User(UserMixin, db.Model):
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
-        # image_file = db.Column(db.Text, default='default.jpeg')
-        # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
+    # image_file = db.Column(db.Text, default='default.jpeg')
+    # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
 
     def __init__(self, email, username, password):
         self.email = email
@@ -114,7 +111,6 @@ class Comment(db.Model):
     # Add parent key
     parent_id = db.ForeignKey("self", null=True, Blank=True)
 
-
     lastcheck = None
     savedresponce = None
 
@@ -161,5 +157,6 @@ class Comment(db.Model):
         else:
             self.savedresponce = "Just a moment ago!"
         return self.savedresponce
+
 
 db.create_all()

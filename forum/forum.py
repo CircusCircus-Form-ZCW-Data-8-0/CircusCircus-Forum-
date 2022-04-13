@@ -16,7 +16,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forum.model import Subforum, Post, Comment, User, db
 
 
-
 # VIEWS
 
 @app.route('/')
@@ -54,6 +53,7 @@ def addpost():
 
     return render_template("createpost.html", subforum=subforum)
 
+
 # @login_required
 # @app.route('/addpost')
 # def private_addpost():
@@ -69,7 +69,7 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    #if post.private:
+    # if post.private:
     #   if not current_user:
     #       return error('login')
     if not post:
@@ -252,8 +252,6 @@ def valid_content(content):
     return len(content) > 10 and len(content) < 5000
 
 
-
-
 def init_site():
     admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")
     add_subforum("Announcements", "View forum announcements here", admin)
@@ -282,43 +280,42 @@ def add_subforum(title, description, parent=None):
 
 """
 def interpret_site_value(subforumstr):
-	segments = subforumstr.split(':')
-	identifier = segments[0]
-	description = segments[1]
-	parents = []
-	hasparents = False
-	while('.' in identifier):
-		hasparents = True
-		dotindex = identifier.index('.')
-		parents.append(identifier[0:dotindex])
-		identifier = identifier[dotindex + 1:]
-	if hasparents:
-		directparent = subforum_from_parent_array(parents)
-		if directparent is None:
-			print(identifier + " could not find parents")
-		else:
-			add_subforum(identifier, description, directparent)
-	else:
-		add_subforum(identifier, description)
+    segments = subforumstr.split(':')
+    identifier = segments[0]
+    description = segments[1]
+    parents = []
+    hasparents = False
+    while('.' in identifier):
+        hasparents = True
+        dotindex = identifier.index('.')
+        parents.append(identifier[0:dotindex])
+        identifier = identifier[dotindex + 1:]
+    if hasparents:
+        directparent = subforum_from_parent_array(parents)
+        if directparent is None:
+            print(identifier + " could not find parents")
+        else:
+            add_subforum(identifier, description, directparent)
+    else:
+        add_subforum(identifier, description)
 def subforum_from_parent_array(parents):
-	subforums = Subforum.query.filter(Subforum.parent_id == None).all()
-	top_parent = parents[0]
-	parents = parents[1::]
-	for subforum in subforums:
-		if subforum.title == top_parent:
-			cur = subforum
-			for parent in parents:
-				for child in subforum.subforums:
-					if child.title == parent:
-						cur = child
-			return cur
-	return None
+    subforums = Subforum.query.filter(Subforum.parent_id == None).all()
+    top_parent = parents[0]
+    parents = parents[1::]
+    for subforum in subforums:
+        if subforum.title == top_parent:
+            cur = subforum
+            for parent in parents:
+                for child in subforum.subforums:
+                    if child.title == parent:
+                        cur = child
+            return cur
+    return None
 def setup():
-	siteconfig = open('./config/subforums', 'r')
-	for value in siteconfig:
-		interpret_site_value(value)
+    siteconfig = open('./config/subforums', 'r')
+    for value in siteconfig:
+        interpret_site_value(value)
 """
-
 
 if not Subforum.query.all():
     init_site()
