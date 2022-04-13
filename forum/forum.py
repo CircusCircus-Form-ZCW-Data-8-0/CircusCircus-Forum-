@@ -2,7 +2,7 @@ from flask import *
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
-
+from forum.links import links
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
@@ -86,17 +86,19 @@ def viewpost():
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
 def comment():
-    post_id = int(request.args.get("post"))
+    post_id = int(request.args.get("post"))  # Get the post id
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
         return error("That post does not exist!")
-    content = request.form['content']
-    postdate = datetime.datetime.now()
-    comment = Comment(content, postdate)
-    current_user.comments.append(comment)
-    post.comments.append(comment)
-    db.session.commit()
-    return redirect("/viewpost?post=" + str(post_id))
+
+    content = request.form['content']  # content equals content entered into form
+    postdate = datetime.datetime.now()  # postdate equals date/time of post
+    comment = Comment(content, postdate)  # comment equals both the content of the post and post date
+    current_user.comments.append(comment)  # current users comments are appended to user comment list
+    post.comments.append(comment)  # Comments are appended to post list
+    db.session.commit()  # Push changes, and insert/update/delete into database
+    return redirect("/viewpost?post=" + str(post_id))  # returns the post and post id
+
 
 
 @login_required
@@ -104,12 +106,22 @@ def comment():
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
+    parent_obj = None  # Declare Parent object
     if not subforum:
         return redirect(url_for("subforums"))
-
+    # Parse Form Data to make sure we have parent id
+    try:
+        parent_id = request.Post.get('parent_id')
+    except:
+        parent_id = None
+    if parent_id:
+        parent_qs = Comment.objects.filter(id=parent_id)
+        if parent_qs.exists() and parent_qs.count() == 1:  # Check if parent id is in database
+            parent_obj = parent_qs[0]  # Parent id will be the first returned
     user = current_user
     title = request.form['title']
     content = request.form['content']
+    parent = parent_obj
     # check for valid posting
     errors = []
     retry = False
