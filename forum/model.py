@@ -17,9 +17,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forum.forum import *
 from forum.user_setting import *
 
-
-
-
 db = SQLAlchemy(app)
 
 
@@ -33,7 +30,6 @@ class User(UserMixin, db.Model):
     admin = db.Column(db.Boolean, default=False, unique=True)
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
-
 
 
     def __init__(self, email, username, password):
@@ -53,6 +49,7 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
+    #private = db.Column(db.Boolean, default=False)
 
     # cache stuff
     lastcheck = None
@@ -62,7 +59,7 @@ class Post(db.Model):
         self.title = title
         self.content = content
         self.postdate = postdate
-        # self.private = private
+        #self.private = private
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
@@ -115,7 +112,6 @@ class Comment(db.Model):
     # Add parent key
     parent = db.ForeignKey("self", null=True, Blank=True)
 
-
     lastcheck = None
     savedresponce = None
 
@@ -162,5 +158,6 @@ class Comment(db.Model):
         else:
             self.savedresponce = "Just a moment ago!"
         return self.savedresponce
+
 
 db.create_all()

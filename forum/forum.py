@@ -69,9 +69,9 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    # if post.private:
-    #   if not current_user:
-    #       return error('login')
+    #if post.private:
+    #    if not current_user:
+    #        return error('login to view')
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -292,41 +292,41 @@ def add_subforum(title, description, parent=None):
 
 """
 def interpret_site_value(subforumstr):
-	segments = subforumstr.split(':')
-	identifier = segments[0]
-	description = segments[1]
-	parents = []
-	hasparents = False
-	while('.' in identifier):
-		hasparents = True
-		dotindex = identifier.index('.')
-		parents.append(identifier[0:dotindex])
-		identifier = identifier[dotindex + 1:]
-	if hasparents:
-		directparent = subforum_from_parent_array(parents)
-		if directparent is None:
-			print(identifier + " could not find parents")
-		else:
-			add_subforum(identifier, description, directparent)
-	else:
-		add_subforum(identifier, description)
+    segments = subforumstr.split(':')
+    identifier = segments[0]
+    description = segments[1]
+    parents = []
+    hasparents = False
+    while('.' in identifier):
+        hasparents = True
+        dotindex = identifier.index('.')
+        parents.append(identifier[0:dotindex])
+        identifier = identifier[dotindex + 1:]
+    if hasparents:
+        directparent = subforum_from_parent_array(parents)
+        if directparent is None:
+            print(identifier + " could not find parents")
+        else:
+            add_subforum(identifier, description, directparent)
+    else:
+        add_subforum(identifier, description)
 def subforum_from_parent_array(parents):
-	subforums = Subforum.query.filter(Subforum.parent_id == None).all()
-	top_parent = parents[0]
-	parents = parents[1::]
-	for subforum in subforums:
-		if subforum.title == top_parent:
-			cur = subforum
-			for parent in parents:
-				for child in subforum.subforums:
-					if child.title == parent:
-						cur = child
-			return cur
-	return None
+    subforums = Subforum.query.filter(Subforum.parent_id == None).all()
+    top_parent = parents[0]
+    parents = parents[1::]
+    for subforum in subforums:
+        if subforum.title == top_parent:
+            cur = subforum
+            for parent in parents:
+                for child in subforum.subforums:
+                    if child.title == parent:
+                        cur = child
+            return cur
+    return None
 def setup():
-	siteconfig = open('./config/subforums', 'r')
-	for value in siteconfig:
-		interpret_site_value(value)
+    siteconfig = open('./config/subforums', 'r')
+    for value in siteconfig:
+        interpret_site_value(value)
 """
 
 if not Subforum.query.all():
