@@ -59,7 +59,7 @@ def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
     if post.private == True:
-        if current_user.is_authenticated:
+        if not current_user.is_authenticated:
             return error('login to view')
     if not post:
         return error("That post does not exist!")
