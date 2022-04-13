@@ -106,22 +106,22 @@ def comment():
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-    parent_obj = None  # Declare Parent object
+    #parent_obj = None  # Declare Parent object
     if not subforum:
         return redirect(url_for("subforums"))
     # Parse Form Data to make sure we have parent id
-    try:
-        parent_id = request.Post.get('parent_id')
-    except:
-        parent_id = None
-    if parent_id:
-        parent_qs = Comment.objects.filter(id=parent_id)
-        if parent_qs.exists() and parent_qs.count() == 1:  # Check if parent id is in database
-            parent_obj = parent_qs[0]  # Parent id will be the first returned
+#     try:
+#         parent_id = request.Post.get('parent_id')
+#     except:
+#         parent_id = None
+#     if parent_id:
+#         parent_qs = Comment.objects.filter(id=parent_id)
+#         if parent_qs.exists() and parent_qs.count() == 1:  # Check if parent id is in database
+#             parent_obj = parent_qs[0]  # Parent id will be the first returned
     user = current_user
     title = request.form['title']
     content = request.form['content']
-    parent = parent_obj
+#     parent = parent_obj
     # check for valid posting
     errors = []
     retry = False
