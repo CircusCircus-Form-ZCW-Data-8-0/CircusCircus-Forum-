@@ -5,12 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 from forum.model import *
 from forum.forum import *
-#from forum.create_account import *
 
 
 @login_required
 @app.route('/action_account')
 def action_account():
-    # image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db
-    # image_file = url_for('static', filename='profile/default.jpeg')
-    return render_template('account.html', title='Account1')  # ,image_file=image_file) #assigning image_file to db
+    # image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image from location
+   # image_file = url_for('static', + current_user.image_file )
+    return render_template('account.html' )#,image_file=image_file) #assigning image_file to db
