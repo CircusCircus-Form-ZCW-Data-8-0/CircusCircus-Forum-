@@ -58,8 +58,8 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    if post.private:
-        if not current_user:
+    if post.private == True:
+        if current_user.is_authenticated:
             return error('login to view')
     if not post:
         return error("That post does not exist!")
@@ -91,7 +91,7 @@ def comment():
 
 
 @login_required
-@app.route('/action_post', methods=['POST'])
+@app.route('/action_post', methods=['GET', 'POST'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
