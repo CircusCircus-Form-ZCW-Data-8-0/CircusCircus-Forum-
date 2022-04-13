@@ -8,6 +8,6 @@ app.config.update(
     SITE_NAME="Data Cohort",
     SITE_DESCRIPTION="A Data Engineer Forum",
     SQLALCHEMY_DATABASE_URI='sqlite:////tmp/database.db',
-    COPYRIGHT='DATA 3.0-8.0? © 2022'
+    COPYRIGHT='ZCW DATA 3.0-8.0? © 2022'
 
 )
