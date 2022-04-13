@@ -54,22 +54,11 @@ def addpost():
     return render_template("createpost.html", subforum=subforum)
 
 
-# @login_required
-# @app.route('/addpost')
-# def private_addpost():
-# 	subforum_id = int(request.args.get("sub"))
-# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-# 	if not subforum:
-# 		return error("That subforum does not exist!")
-#
-# 	return render_template("createpost.html", subforum=subforum)
-
-
 @app.route('/viewpost')
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    if post.private == 1:
+    if post.private:
         if not current_user:
             return error('login to view')
     if not post:
@@ -123,7 +112,8 @@ def action_post():
     content = request.form['content']
     parent = parent_obj
     private = False
-    if request.form.get('private', False):
+    test = request.form.get('private')
+    if test:
         private = True
 
     # check for valid posting
