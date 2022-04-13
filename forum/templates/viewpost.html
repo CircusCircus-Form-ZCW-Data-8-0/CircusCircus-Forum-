@@ -15,10 +15,24 @@
 	<div class="postcontent">
 		{{post.content}}
 	</div>
-
 </div>
-
-
+	!Added code here
+	{% for child_comment in comment.children %}
+	<div class="actualpost">
+	<div class="actualposttitle">
+		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
+		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
+			{{ child_comment.user.username }}
+		</div>
+		<div class="posttime">
+			{{ child_comment.get_time_string() }}
+		</div>
+	</div>
+	<div class="postcontent">
+		{{child_comment.content}}
+	</div>
+	</div>
+	{% endfor %}
 
 <div class="addcomment" id="addcomment">
 	<form action="/action_comment?post={{ post.id }}" method="POST">
