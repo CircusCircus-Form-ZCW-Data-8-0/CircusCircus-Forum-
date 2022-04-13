@@ -26,7 +26,6 @@
 </div>
 <div style="text-align: center;">
 
-	
 
 	{% if current_user.is_authenticated %}
 	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment" value="Reply">
@@ -38,7 +37,6 @@
 {%if comments%}
 <div class="comments">
 {% for comment in comments %}
-	
 	<div class="comment">
 		<div class="commentuser">
 			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
@@ -50,14 +48,25 @@
 		<div class="commenttime">
 			{{ comment.get_time_string() }}
 		</div>
+		<!-- Allen Code
 			<form action="/action_comment?post={{ post.id }}" method="POST">
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
 			</form>
+		{% for comment in comments %}
+			<li class="comment">
+                  <div class="comment-body">
+                    <h3>{{ comment.user.username }}</h3>
+                    <div class="meta mb-3">{{ comment.get_time_string() }}</div>
+                    <p>{{ comment.content }}</p>
+                    <p><a href="#" class="reply">Reply</a></p>
+                  </div>
+                </li>
+		{% endfor %}
+		-->
 		</div>
 	</div>
 	<br>
-	
 {% endfor %}
 </div>
 {% endif %}

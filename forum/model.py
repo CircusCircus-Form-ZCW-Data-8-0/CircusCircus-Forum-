@@ -49,7 +49,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     content = db.Column(db.Text)
-    comments = db.relationship("Comment", backref="post")
+    comments = db.relationship("Comment", backref="post") # relationship between post and all of its comments
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
@@ -97,7 +97,7 @@ class Subforum(db.Model):
     description = db.Column(db.Text)
     subforums = db.relationship("Subforum")
     parent_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
-    posts = db.relationship("Post", backref="subforum")
+    posts = db.relationship("Post", backref="subforum") # parent id pointing back to parent comment
     path = None
     hidden = db.Column(db.Boolean, default=False)
 
@@ -113,7 +113,8 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     # Add parent key
-    parent_id = db.ForeignKey("self", null=True, Blank=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
+
 
 
     lastcheck = None
@@ -162,5 +163,20 @@ class Comment(db.Model):
         else:
             self.savedresponce = "Just a moment ago!"
         return self.savedresponce
+    #Allen Code
+    """
+    class Reply(db.Model):
+        comment = db.ForeignKey(Comment, related_name='replies', on_delete=db.CASCADE)
+        user = db.ForeignKey(User, on_delete=db.CASCADE)
+        postdate = db.DateTimeField(auto_now_add=True)
+        reply = db.TextField()
 
+        def __str__(self):
+            return self.user.username
+
+        @property
+        def get_replies(self):
+            return self.replies.all()
+    #-----------
+    """
 db.create_all()
