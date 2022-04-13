@@ -92,6 +92,7 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
     postdate = datetime.datetime.now()
+    #joe added content2 and changed comment
     content2 = links(content)
     comment = Comment(content2, postdate)
     current_user.comments.append(comment)
