@@ -5,6 +5,7 @@ import datetime
 
 from flask_login.utils import login_required
 from forum.app import app
+import forum.forum
 from flask_sqlalchemy import SQLAlchemy
 
 from flask_login import UserMixin

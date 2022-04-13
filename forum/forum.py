@@ -2,7 +2,7 @@ from flask import *
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
-
+from forum.links import links
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
@@ -92,7 +92,8 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
     postdate = datetime.datetime.now()
-    comment = Comment(content, postdate)
+    content2 = links(content)
+    comment = Comment(content2, postdate)
     current_user.comments.append(comment)
     post.comments.append(comment)
     db.session.commit()
