@@ -7,7 +7,6 @@ from forum.model import *
 from forum.forum import *
 
 
-
 @login_required
 @app.route('/action_account')
 def action_account():
