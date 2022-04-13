@@ -86,17 +86,17 @@ def viewpost():
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
 def comment():
-    post_id = int(request.args.get("post"))
+    post_id = int(request.args.get("post")) # Get the post id
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
         return error("That post does not exist!")
-    content = request.form['content']
-    postdate = datetime.datetime.now()
-    comment = Comment(content, postdate)
-    current_user.comments.append(comment)
-    post.comments.append(comment)
-    db.session.commit()
-    return redirect("/viewpost?post=" + str(post_id))
+    content = request.form['content'] # content equals content entered into form
+    postdate = datetime.datetime.now() # postdate equals date/time of post
+    comment = Comment(content, postdate) # comment equals both the content of the post and post date
+    current_user.comments.append(comment) # current users comments are appended to user comment list
+    post.comments.append(comment) # Comments are appended to post list
+    db.session.commit() # Push changes, and insert/update/delete into database
+    return redirect("/viewpost?post=" + str(post_id)) # returns the post and post id
 
 
 @login_required

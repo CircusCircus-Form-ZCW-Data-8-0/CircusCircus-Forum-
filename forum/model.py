@@ -13,10 +13,10 @@ import datetime
 from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from forum.log_in_out import *
+
 from forum.forum import *
 from forum.user_setting import *
-from forum.create_account import *
+
 
 
 
