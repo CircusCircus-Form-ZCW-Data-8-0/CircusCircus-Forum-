@@ -123,7 +123,9 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
-    post = Post(title, content, datetime.datetime.now())
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
+    post = Post(title, content2, datetime.datetime.now())
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
