@@ -69,9 +69,9 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    # if post.private:
-    #   if not current_user:
-    #       return error('login')
+    #if post.private:
+    #    if not current_user:
+    #        return error('login to view')
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
