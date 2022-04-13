@@ -16,36 +16,15 @@
 	<div class="postcontent">
 		{{post.content}}
 	</div>
-<<<<<<< HEAD
 </div>
-<!-- 	!Added code here
-	{% for comment in comments %}
-	<div class="actualpost">
-	<div class="actualposttitle">
-		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
-		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
-			{{ child_comment.user.username }}
-		</div>
-		<div class="posttime">
-			{{ child_comment.get_time_string() }}
-		</div>
-	</div>
-	<div class="postcontent">
-		{{child_comment.content}}
-	</div>
-	</div>
-	{% end-for %} -->
-=======
->>>>>>> parent of 375aff1 (Merge pull request #12 from CircusCircus-Form-ZCW-Data-8-0/allen)
+
+
 
 </div>
 <div class="addcomment" id="addcomment">
 	<form action="/action_comment?post={{ post.id }}" method="POST">
 		<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
-<<<<<<< HEAD
-<!-- 		<input type='hidden' name='parent_id' value='{{ comment.id }}'> -->
-=======
->>>>>>> parent of 375aff1 (Merge pull request #12 from CircusCircus-Form-ZCW-Data-8-0/allen)
+
 		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
 	</form>
 </div>
