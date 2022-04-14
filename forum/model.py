@@ -26,8 +26,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.Text, unique=True)
     password_hash = db.Column(db.Text)
     email = db.Column(db.Text, unique=True)
-   # image_file=db.Column(db.Text,default='default.jpg')
-    admin = db.Column(db.Boolean, default=False, unique=True)
+    image_file=db.Column(db.Text,default='profile.jpeg')
+    #admin = db.Column(db.Boolean, default=False, unique=True)
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
