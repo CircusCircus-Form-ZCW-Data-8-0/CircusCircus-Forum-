@@ -60,8 +60,17 @@
 	</div>
 </div>
 
-
-
+<!--
+<p class="card-text">
+	{% if post.comments|length > 0 %}
+	<a data-bs-toggle="collapse" href="/viewpost?post={{ post.id }}" role="button">
+		<small>View {{post.comments|length}} Comments</small>
+		</a>
+		{% else %}
+		<small class="text-muted">No Comments</small>
+		{% endif %}
+</p>
+	-->
 
 
 
