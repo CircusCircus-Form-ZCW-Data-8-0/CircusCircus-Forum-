@@ -94,8 +94,11 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
     postdate = datetime.datetime.now()
-#    content2 = links(content)
-    comment = Comment(content, postdate)
+
+    #joe added content2 and changed comment
+    content2 = links(content)
+    comment = Comment(content2, postdate)
+
     current_user.comments.append(comment)
     post.comments.append(comment)
     db.session.commit()
@@ -125,7 +128,9 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
-    post = Post(title, content, datetime.datetime.now())
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
+    post = Post(title, content2, datetime.datetime.now())
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
