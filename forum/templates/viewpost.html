@@ -7,20 +7,23 @@
 		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
 			{{ post.user.username }}
+
 		</div>
 		<div class="posttime">
 			{{ post.get_time_string() }}
 		</div>
 	</div>
 	<div class="postcontent">
-		{{post.content}}
+		{{post.content | safe}}
 	</div>
 </div>
 
 
+</div>
 <div class="addcomment" id="addcomment">
 	<form action="/action_comment?post={{ post.id }}" method="POST">
 		<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
+
 		<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
 	</form>
 </div>
@@ -44,7 +47,7 @@
 			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
 		</div>
 		<div class="commentcontent">
-			{{ comment.content }}
+			{{ comment.content | safe }}
 		</div>
 		
 		<div class="commenttime">

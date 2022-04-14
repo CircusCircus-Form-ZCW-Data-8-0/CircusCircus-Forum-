@@ -26,8 +26,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.Text, unique=True)
     password_hash = db.Column(db.Text)
     email = db.Column(db.Text, unique=True)
-   # image_file=db.Column(db.Text,default='default.jpg')
-    admin = db.Column(db.Boolean, default=False, unique=True)
+    image_file=db.Column(db.Text,default='profile.jpeg')
+    #admin = db.Column(db.Boolean, default=False, unique=True)
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
@@ -110,7 +110,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     # Add parent key
-    parent = db.ForeignKey("self", null=True, Blank=True)
+    parent_id = db.ForeignKey("self", null=True, Blank=True)
 
     lastcheck = None
     savedresponce = None
@@ -120,11 +120,11 @@ class Comment(db.Model):
         self.postdate = postdate
 
     class Meta:
-        ordering = ['-postdate']
+        ordering = ['postdate']
 
     # Add Children instance method
     def children(self):  # replies
-        return Comment.objects.filter(parent=self)
+        return Comment.objects.filter(parent_id=self)
 
     @property
     def is_parent(self):
