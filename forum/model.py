@@ -49,17 +49,17 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
-    #private = db.Column(db.Boolean, default=False)
+    private = db.Column(db.Boolean, default=False)
 
     # cache stuff
     lastcheck = None
     savedresponce = None
 
-    def __init__(self, title, content, postdate):
+    def __init__(self, title, content, postdate, private):
         self.title = title
         self.content = content
         self.postdate = postdate
-        #self.private = private
+        self.private = private
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request

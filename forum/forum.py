@@ -54,25 +54,15 @@ def addpost():
 
     return render_template("createpost.html", subforum=subforum)
 
-# @login_required
-# @app.route('/addpost')
-# def private_addpost():
-# 	subforum_id = int(request.args.get("sub"))
-# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-# 	if not subforum:
-# 		return error("That subforum does not exist!")
-#
-# 	return render_template("createpost.html", subforum=subforum)
-
 
 @app.route('/viewpost')
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    #if post.private:
 
-    #   if not current_user:
-    #       return error('login')
+    if post.private == True:
+        if not current_user.is_authenticated:
+            return error('login to view')
 
     if not post:
         return error("That post does not exist!")
@@ -106,7 +96,7 @@ def comment():
 
 
 @login_required
-@app.route('/action_post', methods=['POST'])
+@app.route('/action_post', methods=['GET', 'POST'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
@@ -117,6 +107,14 @@ def action_post():
     user = current_user
     title = request.form['title']
     content = request.form['content']
+
+    parent = parent_obj
+    private = False
+    test = request.form.get('private')
+    if test:
+        private = True
+
+
     # check for valid posting
     errors = []
     retry = False
@@ -128,9 +126,11 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
+
+    post = Post(title, content, datetime.datetime.now(), private)
     #joe added content2 and added it to post instead of content for displaying links
     content2 = links(content)
-    post = Post(title, content2, datetime.datetime.now())
+
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
