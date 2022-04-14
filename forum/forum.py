@@ -1,18 +1,17 @@
-from flask import *
+
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
-from flask_login import LoginManager, current_user, login_user, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 #from forum.links import links
-from flask_login.utils import login_required
-from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_login import UserMixin
+from flask import *
+from forum.app import app
+from flask_login import LoginManager, current_user, login_user, logout_user
+from flask_login.utils import login_required
 import re
 import datetime
 from flask_login.login_manager import LoginManager
-from werkzeug.security import generate_password_hash, check_password_hash
-
 from forum.model import Subforum, Post, Comment, User, db
 
 
@@ -93,6 +92,19 @@ def comment():
     if not post:
         return error("That post does not exist!")
     content = request.form['content']
+
+####### Madhavi ########
+    # Like button
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+####### Madhavi ########
+
     postdate = datetime.datetime.now()
 #    content2 = links(content)
     comment = Comment(content, postdate)
@@ -101,6 +113,49 @@ def comment():
     db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
 
+####### Madhavi ########
+@login_required
+@app.route('/comment_comment', methods=['POST', 'GET'])
+# '/action_comment' is how viewpost.html calls comment()
+def comment_comment():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+
+    parent_id = int(request.args.get("parent"))
+    print(parent_id)
+    parent = Comment.query.filter(Comment.id == parent_id).first()
+    if not post:
+        return error("That post does not exist!")
+    content = request.form['content']
+
+    if not parent:
+        return error("This parent comment does not exist!")
+
+    # Like button
+    like_counter = 0
+    if request.method == 'POST':
+        if request.form.get('action1') == 'Like':
+            print('hello')
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+
+    postdate = datetime.datetime.now()
+
+    #  content, postdate, user_id, post_id, parent_comment_id = None
+    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    # this creates an instance of comment
+    # go to the post table, go to the comments column, and then add the comment
+
+    db.session.add(comment)
+    db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
+####### Madhavi ########
 
 @login_required
 @app.route('/action_post', methods=['POST'])
@@ -114,7 +169,23 @@ def action_post():
     user = current_user
     title = request.form['title']
     content = request.form['content']
+
+####### Madhavi ########
     # check for valid posting
+    # replaces key word with emoji
+    if '*wink*' in content or '*wink*' in title:
+        content = content.replace('*wink*', '\U0001F609')
+        title = title.replace('*wink*', '\U0001F609')
+    if '*smile*' in content or '*smile*' in title:
+        content = content.replace('*smile*', '\U0001F600')
+        title = title.replace('*smile*', '\U0001F600')
+    if '*like*' in content or '*like*' in title:
+        content = content.replace('*like*', '\U0001F44D')
+        title = title.replace('*like*', '\U0001F44D')
+
+####### Madhavi ########
+
+
     errors = []
     retry = False
     if not valid_title(title):
