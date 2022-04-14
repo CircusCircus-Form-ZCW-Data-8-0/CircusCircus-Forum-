@@ -4,6 +4,8 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
 
 from flask_login.utils import login_required
+from sqlalchemy.dialects.mssql.information_schema import views
+
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
 
@@ -98,6 +100,21 @@ def comment():
     db.session.commit() # Push changes, and insert/update/delete into database
     return redirect("/viewpost?post=" + str(post_id)) # returns the post and post id
 
+"""
+@login_required
+
+def delete_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+
+    if not comment:
+        flash('Comment does not exist.', category='error')
+    elif current_user.id != comment.author and current_user.id != comment.post.author:
+        flash('You do not have permission to delete this comment.', category='error')
+    else:
+        db.session.delete(comment)
+        db.session.commit()
+    return redirect(url_for('views.home'))
+"""
 
 @login_required
 @app.route('/action_post', methods=['POST'])
