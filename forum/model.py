@@ -11,8 +11,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.Text, unique=True)
     password_hash = db.Column(db.Text)
     email = db.Column(db.Text, unique=True)
-   # image_file=db.Column(db.Text,default='default.jpg')
-    admin = db.Column(db.Boolean, default=False, unique=True)
+    image_file=db.Column(db.Text,default='profile.jpeg')
+    #admin = db.Column(db.Boolean, default=False, unique=True)
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
 
@@ -40,11 +40,11 @@ class Post(db.Model):
     lastcheck = None
     savedresponce = None
 
-    def __init__(self, title, content, postdate):
+    def __init__(self, title, content, postdate, private):
         self.title = title
         self.content = content
         self.postdate = postdate
-        #self.private = private
+        self.private = private
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request

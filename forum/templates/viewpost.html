@@ -24,10 +24,9 @@
 		</div>
 	</div>
 	<div class="postcontent">
-		{{post.content|safe }}
+		{{post.content | safe}}
 	</div>
 </div>
-
 
 
 </div>
@@ -231,7 +230,7 @@ function toggleSub(this_id){
 			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
 		</div>
 		<div class="commentcontent">
-			{{ comment.content }}
+			{{ comment.content | safe }}
 		</div>
 		
 		<div class="commenttime">
