@@ -7,7 +7,7 @@
 <div class="login">
 	{% if current_user.is_authenticated %}
 	<b {% if current_user.admin %} style="color: red;" {% endif %}>{{ current_user.username }}</b>
-	<a class="account-heading" href="/action_account">(Account)</a>
+	<a class="account-heading" href="/action_profile">(Account)</a>
 	<a class="logoutlink" href="/action_logout">(logout)</a>
 
 
