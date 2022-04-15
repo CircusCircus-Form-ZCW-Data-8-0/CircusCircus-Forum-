@@ -72,6 +72,8 @@ def viewpost():
         Comment.id.desc())  # no need for scalability now
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
+
+@app.route('/edit_post', methods=['GET', 'POST'])
 def editpost():
     post = Post.query.get_or_404(id)
     form = Post()
@@ -80,8 +82,8 @@ def editpost():
         post.content = form.content.data
         db.session.add(post)
         db.session.commit()
-        flash('Post updated!')
-        return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+#        flash('Post updated!')
+#        return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
     form.title.data = post.title
     form.content.data = post.content
     return render_template("editpost.html", form=form)

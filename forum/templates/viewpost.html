@@ -17,7 +17,9 @@
 		{{post.content | safe}}
 		</div>
 	<div>
+		<form action="/edit_post?post={{ post.id }}" method="POST">
 		<input class="inputbox" type="submit" value="Edit Post">
+		</form>
 	</div>
 </div>
 
