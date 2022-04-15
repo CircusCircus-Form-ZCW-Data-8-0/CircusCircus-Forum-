@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-
     <list default="true" id="3ee45996-f2c8-44d7-bc00-db84a4edce7a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/forum/templates/viewpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/viewpost.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run.sh" afterDir="false" />
-
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,14 +18,13 @@
       <list>
         <option value="Python Script" />
         <option value="HTML File" />
-
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev" />
+        <entry key="$PROJECT_DIR$" value="jason" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -40,7 +40,6 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
-
     <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
@@ -53,7 +52,6 @@
   </component>
   <component name="RunManager">
     <configuration name="links" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-
       <module name="CircusCircus-Forum-" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -76,22 +74,18 @@
     </configuration>
     <recent_temporary>
       <list>
-
         <item itemvalue="Python.links" />
-
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-
       <changelist id="f823cbfb-100e-4aeb-b4cb-acc00cb935d1" name="Changes" comment="" />
       <created>1649688081621</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1649688081621</updated>
-
     </task>
     <servers />
   </component>
