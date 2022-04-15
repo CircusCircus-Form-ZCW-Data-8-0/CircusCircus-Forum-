@@ -1,5 +1,5 @@
 
-# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
+#from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 #from forum.links import links
@@ -55,7 +55,6 @@ def addpost():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
     if not subforum:
         return error("That subforum does not exist!")
-
     return render_template("createpost.html", subforum=subforum)
 
 
@@ -66,8 +65,9 @@ def viewpost():
 
     if post.private == True:
         if not current_user.is_authenticated:
-            return error('login to view')
-
+            flash('Please log in to view')
+            return render_template("login.html")
+        #return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -77,16 +77,24 @@ def viewpost():
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
 @login_required
-@app.route('/edit_post', methods=['GET', 'POST'])
+@app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
+    #form = Post()
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if post:
+        post.title = post.title
+        post.content = post.content
+
         db.session.add(post)
         db.session.commit()
         flash('Post updated!')
-        # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
-        return render_template("editpost.html", post=post)
+        return render_template("editpost.html", post=post, path=subforum.path)
+        #return render_template("editpost.html", post=post)
+    if not subforum:
+        return error("That subforum does not exist!")
+    return render_template("createpost.html", subforum=subforum)
+
 #  ACTIONS
 
 @login_required
@@ -98,6 +106,8 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
 
+    #joe added content2 and changed comment
+    content2 = links(content)
 ####### Madhavi ########
     # Like button
 
@@ -112,9 +122,6 @@ def comment():
 
     postdate = datetime.datetime.now()
 
-    #joe added content2 and changed comment
-
-    content2 = links(content)
     comment = Comment(content2, postdate)
 
 
@@ -124,6 +131,7 @@ def comment():
     return redirect("/viewpost?post=" + str(post_id))
 
 ####### Madhavi ########
+
 @login_required
 @app.route('/comment_comment', methods=['POST', 'GET'])
 # '/action_comment' is how viewpost.html calls comment()
@@ -179,7 +187,8 @@ def action_post():
     user = current_user
     title = request.form['title']
     content = request.form['content']
-
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
 
 #    parent = parent_obj
 
@@ -214,9 +223,8 @@ def action_post():
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
 
-    post = Post(title, content, datetime.datetime.now(), private)
-    #joe added content2 and added it to post instead of content for displaying links
-    content2 = links(content)
+    post = Post(title, content2, datetime.datetime.now(), private)
+
 
     subforum.posts.append(post)
     user.posts.append(post)
