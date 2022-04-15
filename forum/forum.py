@@ -75,18 +75,18 @@ def viewpost():
 
 @app.route('/edit_post', methods=['GET', 'POST'])
 def editpost():
-    post = Post.query.get_or_404(id)
-    form = Post()
-    if form.validate_on_sumbit():
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.add(post)
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    if post.validate_on_sumbit():
+        post_id.title = post.title.data
+        post_id.content = post.content.data
+        db.session.add(post_id)
         db.session.commit()
 #        flash('Post updated!')
 #        return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
-    form.title.data = post.title
-    form.content.data = post.content
-    return render_template("editpost.html", form=form)
+    post.title.data = post_id.title
+    post.content.data = post_id.content
+    return render_template("editpost.html", post=post)
 # ACTIONS
 
 @login_required
