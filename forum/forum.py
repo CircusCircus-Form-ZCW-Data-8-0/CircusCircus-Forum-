@@ -67,7 +67,7 @@ def viewpost():
         if not current_user.is_authenticated:
             flash('Please log in to view')
             return render_template("login.html")
-        return redirect("/")
+        #return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -89,8 +89,8 @@ def editpost():
         db.session.add(post)
         db.session.commit()
         flash('Post updated!')
-        # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
-        return render_template("editpost.html", post=post)
+        return render_template("editpost.html", post=post, path=subforum.path)
+        #return render_template("editpost.html", post=post)
     if not subforum:
         return error("That subforum does not exist!")
     return render_template("createpost.html", subforum=subforum)
