@@ -48,6 +48,7 @@
 				<a {{comment.user.username}}
 				   >{{comment.user.username}}</a>:
 				{{comment.content}}
+
 					<form action="/action_comment?post={{ post.id }}" method="POST">
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="button" style="margin-bottom: 1%;" type="submit" value="Reply">
