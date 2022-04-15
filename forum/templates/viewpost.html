@@ -36,7 +36,7 @@
 
 <div class="comments">
 {% for comment in comments %}
-	
+
 	<div class="comment">
 		Allen Code here
 <div class="" id="comments-{{post.id}}">
@@ -48,11 +48,9 @@
 				<a {{comment.user.username}}
 				   >{{comment.user.username}}</a>:
 				{{comment.content}}
-
 					<form action="/action_comment?post={{ post.id }}" method="POST">
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="button" style="margin-bottom: 1%;" type="submit" value="Reply">
-
 			</form>
 				</div>
 				<div>
@@ -65,19 +63,19 @@
 
 
 <p class="card-text">
-	{% if post.comments|length > 0 %}
-	<a data-bs-toggle="collapse" href="/viewpost?post={{ post.id }}" role="button">
-		<small>View {{post.comments|length}} Comments</small>
-		</a>
-		{% else %}
-		<small class="text-muted">No Comments</small>
-		{% endif %}
-</p>
+        {% if post.comments|length > 0 %}
+        <a data-bs-toggle="collapse" href="#comments-{{post.id}}" role="button">
+          <small>View {{post.comments|length}} Comments</small>
+        </a>
+        {% else %}
+        <small class="text-muted">No Comments</small>
+        {% endif %}
+      </p>
 
 
 		<!--
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) -
 		</div>
 		<div class="commentcontent">
 			{{ comment.content }}
@@ -87,10 +85,6 @@
 			{{ comment.get_time_string() }}
 		</div>
 
-			<form action="/action_comment?post={{ post.id }}" method="POST">
-				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
-				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
-			</form>
 			-->
 
 		</div>
@@ -110,7 +104,7 @@ function toggle(){
 		div.style.display = "none";
 		button.value="Add a comment"
 	}
-	
+
 }
 </script>
 
