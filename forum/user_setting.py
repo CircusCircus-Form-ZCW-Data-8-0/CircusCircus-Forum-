@@ -1,12 +1,15 @@
 import os
 import secrets
 from flask import *
+from forum.forum import *
+#from forum.model import User
+from forum.model import *
+from flask_login import LoginManager, current_user, login_user, logout_user
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
-#from forum.model import User
-from forum.model import *
-from forum.forum import *
+from flask_login import UserMixin
+#from forum.model import Subforum, Post, Comment, User, db
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
@@ -55,14 +58,4 @@ class UpdateAccountForm(FlaskForm):
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Update')
 
-    def validate_username(self, username):
-        if username.data != current_user.username:
-            user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError('That username is taken. Please choose a different one.')
-
-    def validate_email(self, email):
-        if email.data != current_user.email:
-            user = User.query.filter_by(email=email.data).first()
-            if user:
-                raise ValidationError('That email is taken. Please choose a different one.')
+    
