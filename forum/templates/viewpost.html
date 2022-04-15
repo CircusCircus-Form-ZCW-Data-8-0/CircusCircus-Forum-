@@ -2,6 +2,20 @@
 {% block body %}
 {{ path|safe}}
 
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
 <div class="actualpost">
 	<div class="actualposttitle">
 			<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
