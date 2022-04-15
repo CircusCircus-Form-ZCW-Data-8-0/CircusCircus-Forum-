@@ -113,7 +113,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     # Add parent key
-    parent = db.ForeignKey("self", null=True, Blank=True)
+    parent_id = db.Column(db.Integer)
 
 
     lastcheck = None
@@ -128,7 +128,7 @@ class Comment(db.Model):
 
     # Add Children instance method
     def children(self):  # replies
-        return Comment.objects.filter(parent=self)
+        return Comment.objects.filter(parent_id=self)
 
     @property
     def is_parent(self):
