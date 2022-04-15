@@ -55,7 +55,6 @@ def addpost():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
     if not subforum:
         return error("That subforum does not exist!")
-
     return render_template("createpost.html", subforum=subforum)
 
 
@@ -68,7 +67,7 @@ def viewpost():
         if not current_user.is_authenticated:
             flash('Please log in to view')
             return render_template("login.html")
-            return redirect("/")
+        return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -78,7 +77,7 @@ def viewpost():
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
 @login_required
-@app.route('/edit_post', methods=['GET', 'POST'])
+@app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
     #form = Post()
     post_id = int(request.args.get("post"))
@@ -92,6 +91,10 @@ def editpost():
         flash('Post updated!')
         # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
         return render_template("editpost.html", post=post)
+    if not subforum:
+        return error("That subforum does not exist!")
+    return render_template("createpost.html", subforum=subforum)
+
 #  ACTIONS
 
 @login_required
