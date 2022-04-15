@@ -1,21 +1,39 @@
+import os
+import secrets
 from flask import *
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
+#from forum.model import User
 from forum.model import *
 from forum.forum import *
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-#from forum.model import User
+
 
 db = SQLAlchemy(app)
+
+def save_picture(form_picture):
+    random_hex=secrets.token_hex(8)
+    _, f_ext =ox.path.splitext(form_picture.filename)
+    picture_fn= random_hex + f_ext
+    picture_path = os.path.join(app.root_path,'static/', picture_fn)
+    form_picture.save(picture_path)
+
+    return picture_fn
+
+
 @login_required
 @app.route('/action_profile', methods=['GET','POST'])
 def action_profile():
     form = UpdateAccountForm()
     if form.validate_on_submit():
+        if form.picture.data:
+            picture_file=save_picture(form.picture.data)
+            current_user.image_file = picture_file
+
         current_user.username = form.username.data
         current_user.email=form.email.data
         db.session.commit()
