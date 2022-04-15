@@ -43,6 +43,7 @@
 	</form>
 </div>
 <div style="text-align: center;">
+
 <!--Madhavi-->
 <!--add react buttons on posts-->
 	<head>
@@ -83,14 +84,13 @@
 </form>
 <!--Madhavi-->
 
-
 	{% if current_user.is_authenticated %}
-	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment" value="Reply">
-
+	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment">
 	{% else %}
 	<a href="/loginform">Login or register to make a comment</a>
 	{% endif %}
 </div>
+
 {%if comments%}
 
 <!--Madhavi-->
@@ -227,28 +227,64 @@ function toggleSub(this_id){
 
 <!--</div>
 {%if comments%}
+
 <div class="comments">
 {% for comment in comments %}
-	
+
 	<div class="comment">
+		Allen Code here
+<div class="" id="comments-{{post.id}}">
+	<div class="card">
+		<div class="card-body" id="comments-expanded-{{post.id}}">
+			{% for comment in post.comments %}
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+				<a {{comment.user.username}}
+				   >{{comment.user.username}}</a>:
+				{{comment.content}}
+
+					<form action="/action_comment?post={{ post.id }}" method="POST">
+				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
+				<input class="button" style="margin-bottom: 1%;" type="submit" value="Reply">
+			</form>
+				</div>
+				<div>
+				<small class="text-muted"> {{comment.get_time_string()}}</small>
+			</div>
+			</div>
+			{% endfor %}
+	</div>
+</div>
+
+
+<p class="card-text">
+        {% if post.comments|length > 0 %}
+        <a data-bs-toggle="collapse" href="#comments-{{post.id}}" role="button">
+          <small>View {{post.comments|length}} Comments</small>
+        </a>
+        {% else %}
+        <small class="text-muted">No Comments</small>
+        {% endif %}
+      </p>
+
+
+		<!--
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) -
 		</div>
 		<div class="commentcontent">
 			{{ comment.content | safe }}
 		</div>
-		
+
 		<div class="commenttime">
 			{{ comment.get_time_string() }}
 		</div>
-			<form action="/action_comment?post={{ post.id }}" method="POST">
-				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
-				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
-			</form>
+
+			-->
+
 		</div>
 	</div>
 	<br>
-	
 {% endfor %}
 </div>
 {% endif %}
@@ -263,7 +299,7 @@ function toggle(){
 		div.style.display = "none";
 		button.value="Add a comment"
 	}
-	
+
 }
 </script>
 

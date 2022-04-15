@@ -2,7 +2,12 @@
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-#from forum.links import links
+
+from flask_login.utils import login_required
+from sqlalchemy.dialects.mssql.information_schema import views
+
+from forum.app import app
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import *
@@ -112,9 +117,46 @@ def comment():
 
     postdate = datetime.datetime.now()
 
+
+@login_required
+@app.route("/create-comment/<post_id>", methods=['POST'])
+def reply_comment(post_id):
+    text = request.form.get('content')
+
+    if not text:
+        flash('Comment cannot be empty.', category='error')
+    else:
+        post = Post.query.filter_by(id=post_id)
+        if post:
+            comment = Comment()
+            db.session.add(comment)
+            db.session.commit()
+        else:
+            flash('Post does not exist.', category='error')
+
+    return redirect("/viewpost?post=" + str(post_id))
+
+
+@app.route("/delete-comment/<comment_id>")
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+
+    if not comment:
+        flash('Comment does not exist.', category='error')
+    elif current_user.id != comment.author and current_user.id != comment.post.user_id:
+        flash('You do not have permission to delete this comment.', category='error')
+    else:
+        db.session.delete(comment)
+        db.session.commit()
+
+    return redirect(url_for('views.home'))
+
+
     #joe added content2 and changed comment
 #    content2 = links(content)
     comment = Comment(content, postdate)
+
 
     current_user.comments.append(comment)
     post.comments.append(comment)
@@ -170,14 +212,13 @@ def comment_comment():
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-
+    
     if not subforum:
         return redirect(url_for("subforums"))
 
     user = current_user
     title = request.form['title']
     content = request.form['content']
-
 
 #    parent = parent_obj
 
