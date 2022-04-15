@@ -1,21 +1,29 @@
-from flask import *
+
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
-from flask_login import LoginManager, current_user, login_user, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 
 from flask_login.utils import login_required
 from sqlalchemy.dialects.mssql.information_schema import views
 
 from forum.app import app
-from flask_sqlalchemy import SQLAlchemy
 
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from flask import *
+from forum.app import app
+from flask_login import LoginManager, current_user, login_user, logout_user
+from flask_login.utils import login_required
 import re
 import datetime
 from flask_login.login_manager import LoginManager
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from forum.links import links
+
 from forum.model import Subforum, Post, Comment, User, db
+
 
 
 # VIEWS
@@ -56,24 +64,15 @@ def addpost():
     return render_template("createpost.html", subforum=subforum)
 
 
-# @login_required
-# @app.route('/addpost')
-# def private_addpost():
-# 	subforum_id = int(request.args.get("sub"))
-# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-# 	if not subforum:
-# 		return error("That subforum does not exist!")
-#
-# 	return render_template("createpost.html", subforum=subforum)
-
-
 @app.route('/viewpost')
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    # if post.private:
-    #   if not current_user:
-    #       return error('login')
+
+    if post.private == True:
+        if not current_user.is_authenticated:
+            return error('login to view')
+
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -82,23 +81,42 @@ def viewpost():
         Comment.id.desc())  # no need for scalability now
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
-
-# ACTIONS
+@login_required
+@app.route('/edit_post', methods=['GET', 'POST'])
+def editpost():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    if post:
+        db.session.add(post)
+        db.session.commit()
+        flash('Post updated!')
+        # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
+        return render_template("editpost.html", post=post)
+#  ACTIONS
 
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
 def comment():
-    post_id = int(request.args.get("post"))  # Get the post id
+    post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
         return error("That post does not exist!")
-    content = request.form['content']  # content equals content entered into form
-    postdate = datetime.datetime.now()  # postdate equals date/time of post
-    comment = Comment(content, postdate)  # comment equals both the content of the post and post date
-    current_user.comments.append(comment)  # current users comments are appended to user comment list
-    post.comments.append(comment)  # Comments are appended to post list
-    db.session.commit()  # Push changes, and insert/update/delete into database
-    return redirect("/viewpost?post=" + str(post_id))  # returns the post and post id
+    content = request.form['content']
+
+####### Madhavi ########
+    # Like button
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+####### Madhavi ########
+
+    postdate = datetime.datetime.now()
+
 
 @login_required
 @app.route("/create-comment/<post_id>", methods=['POST'])
@@ -135,18 +153,95 @@ def delete_comment(comment_id):
     return redirect(url_for('views.home'))
 
 
+    #joe added content2 and changed comment
+#    content2 = links(content)
+    comment = Comment(content, postdate)
+
+
+    current_user.comments.append(comment)
+    post.comments.append(comment)
+    db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
+
+####### Madhavi ########
 @login_required
-@app.route('/action_post', methods=['POST'])
+@app.route('/comment_comment', methods=['POST', 'GET'])
+# '/action_comment' is how viewpost.html calls comment()
+def comment_comment():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+
+    parent_id = int(request.args.get("parent"))
+    print(parent_id)
+    parent = Comment.query.filter(Comment.id == parent_id).first()
+    if not post:
+        return error("That post does not exist!")
+    content = request.form['content']
+
+    if not parent:
+        return error("This parent comment does not exist!")
+
+    # Like button
+    like_counter = 0
+    if request.method == 'POST':
+        if request.form.get('action1') == 'Like':
+            print('hello')
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+
+    postdate = datetime.datetime.now()
+
+    #  content, postdate, user_id, post_id, parent_comment_id = None
+    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    # this creates an instance of comment
+    # go to the post table, go to the comments column, and then add the comment
+
+    db.session.add(comment)
+    db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
+####### Madhavi ########
+
+@login_required
+@app.route('/action_post', methods=['GET', 'POST'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
+    
     if not subforum:
         return redirect(url_for("subforums"))
 
     user = current_user
     title = request.form['title']
     content = request.form['content']
+
+#    parent = parent_obj
+
+    private = False
+    test = request.form.get('private')
+    if test:
+        private = True
+
     # check for valid posting
+    # replaces key word with emoji
+    if '*wink*' in content or '*wink*' in title:
+        content = content.replace('*wink*', '\U0001F609')
+        title = title.replace('*wink*', '\U0001F609')
+    if '*smile*' in content or '*smile*' in title:
+        content = content.replace('*smile*', '\U0001F600')
+        title = title.replace('*smile*', '\U0001F600')
+    if '*like*' in content or '*like*' in title:
+        content = content.replace('*like*', '\U0001F44D')
+        title = title.replace('*like*', '\U0001F44D')
+
+####### Madhavi ########
+
+
     errors = []
     retry = False
     if not valid_title(title):
@@ -157,7 +252,11 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
-    post = Post(title, content, datetime.datetime.now())
+
+    post = Post(title, content, datetime.datetime.now(), private)
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
+
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
@@ -288,6 +387,8 @@ def valid_content(content):
     return len(content) > 10 and len(content) < 5000
 
 
+
+
 def init_site():
     admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")
     add_subforum("Announcements", "View forum announcements here", admin)
@@ -316,42 +417,43 @@ def add_subforum(title, description, parent=None):
 
 """
 def interpret_site_value(subforumstr):
-	segments = subforumstr.split(':')
-	identifier = segments[0]
-	description = segments[1]
-	parents = []
-	hasparents = False
-	while('.' in identifier):
-		hasparents = True
-		dotindex = identifier.index('.')
-		parents.append(identifier[0:dotindex])
-		identifier = identifier[dotindex + 1:]
-	if hasparents:
-		directparent = subforum_from_parent_array(parents)
-		if directparent is None:
-			print(identifier + " could not find parents")
-		else:
-			add_subforum(identifier, description, directparent)
-	else:
-		add_subforum(identifier, description)
+    segments = subforumstr.split(':')
+    identifier = segments[0]
+    description = segments[1]
+    parents = []
+    hasparents = False
+    while('.' in identifier):
+        hasparents = True
+        dotindex = identifier.index('.')
+        parents.append(identifier[0:dotindex])
+        identifier = identifier[dotindex + 1:]
+    if hasparents:
+        directparent = subforum_from_parent_array(parents)
+        if directparent is None:
+            print(identifier + " could not find parents")
+        else:
+            add_subforum(identifier, description, directparent)
+    else:
+        add_subforum(identifier, description)
 def subforum_from_parent_array(parents):
-	subforums = Subforum.query.filter(Subforum.parent_id == None).all()
-	top_parent = parents[0]
-	parents = parents[1::]
-	for subforum in subforums:
-		if subforum.title == top_parent:
-			cur = subforum
-			for parent in parents:
-				for child in subforum.subforums:
-					if child.title == parent:
-						cur = child
-			return cur
-	return None
+    subforums = Subforum.query.filter(Subforum.parent_id == None).all()
+    top_parent = parents[0]
+    parents = parents[1::]
+    for subforum in subforums:
+        if subforum.title == top_parent:
+            cur = subforum
+            for parent in parents:
+                for child in subforum.subforums:
+                    if child.title == parent:
+                        cur = child
+            return cur
+    return None
 def setup():
-	siteconfig = open('./config/subforums', 'r')
-	for value in siteconfig:
-		interpret_site_value(value)
+    siteconfig = open('./config/subforums', 'r')
+    for value in siteconfig:
+        interpret_site_value(value)
 """
+
 
 if not Subforum.query.all():
     init_site()
