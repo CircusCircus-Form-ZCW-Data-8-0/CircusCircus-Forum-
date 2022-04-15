@@ -1,20 +1,5 @@
-from flask import *
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
-from flask_login import LoginManager, current_user, login_user, logout_user
-import datetime
 
-from flask_login.utils import login_required
-from forum.app import app
-import forum.forum
-from flask_sqlalchemy import SQLAlchemy
-
-from flask_login import UserMixin
-import re
-import datetime
-from flask_login.login_manager import LoginManager
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from forum.forum import *
 from forum.user_setting import *
 
 db = SQLAlchemy(app)
@@ -111,6 +96,11 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     # Add parent key
     parent_id = db.ForeignKey("self", null=True, Blank=True)
+
+    ####### Madhavi ########
+    comments = db.relationship("Comment")  # relates to
+    parent_comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), default=None)
+    ####### Madhavi ########
 
     lastcheck = None
     savedresponce = None
