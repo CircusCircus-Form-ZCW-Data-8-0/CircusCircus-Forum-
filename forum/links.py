@@ -18,7 +18,3 @@ def links(content):
         else:
             new_string += word
     return new_string
-#
-# content = 'this link      is https://yoda.zipcode.rocks/apache-spark-for-zcw-data/'
-#
-# print(links(content))
