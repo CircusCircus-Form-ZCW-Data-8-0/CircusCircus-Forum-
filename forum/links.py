@@ -1,3 +1,4 @@
+
 from urllib.parse import urlparse, urlsplit
 
 def links(content):
@@ -12,3 +13,4 @@ def links(content):
         return url1
     else:
         return content
+
