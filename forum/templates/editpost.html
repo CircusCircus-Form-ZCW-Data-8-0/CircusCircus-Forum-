@@ -5,10 +5,10 @@
 <div class="actualpost">
 	<form action="action_post?sub={{ post.id }}" method="POST">
 
-		<input class="inputbox" size="100" type="text" name="title"><br>
+		<textarea class="text-secondary">{{post.title}} size="100" type="text" name="title"></textarea> <br>
 		<input type="checkbox" id="private" name="private" value="False">
 		<label for="private"> Private Post </label>
-		<textarea class="inputbox" rows="25" cols="100"  name="content" ></textarea><br>
+		<textarea class="text-secondary">{{post.content}}rows="25" cols="100"  name="content" ></textarea> <br>
 
 		<p class="text-secondary">{{post.title}} </p>
 		<p class="text-secondary">{{post.content}}</p>

@@ -66,8 +66,9 @@ def viewpost():
 
     if post.private == True:
         if not current_user.is_authenticated:
-            return error('login to view')
-
+            flash('Please log in to view')
+            return render_template("login.html")
+            return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -83,10 +84,8 @@ def editpost():
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if post:
-        post.title = post.title.data
-        post.content = post.content.data
-
-
+        post.title = post.title
+        post.content = post.content
 
         db.session.add(post)
         db.session.commit()
