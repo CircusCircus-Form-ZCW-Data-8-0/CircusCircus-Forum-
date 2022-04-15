@@ -123,6 +123,7 @@ def comment():
     return redirect("/viewpost?post=" + str(post_id))
 
 ####### Madhavi ########
+
 @login_required
 @app.route('/comment_comment', methods=['POST', 'GET'])
 # '/action_comment' is how viewpost.html calls comment()
