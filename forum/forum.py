@@ -79,9 +79,15 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['GET', 'POST'])
 def editpost():
+    #form = Post()
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if post:
+        post.title = post.title.data
+        post.content = post.content.data
+
+
+
         db.session.add(post)
         db.session.commit()
         flash('Post updated!')
