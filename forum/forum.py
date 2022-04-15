@@ -12,6 +12,11 @@ from flask_login.utils import login_required
 import re
 import datetime
 from flask_login.login_manager import LoginManager
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from forum.links import links
+
 from forum.model import Subforum, Post, Comment, User, db
 
 
@@ -71,8 +76,18 @@ def viewpost():
         Comment.id.desc())  # no need for scalability now
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
-
-# ACTIONS
+@login_required
+@app.route('/edit_post', methods=['GET', 'POST'])
+def editpost():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    if post:
+        db.session.add(post)
+        db.session.commit()
+        flash('Post updated!')
+        # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
+        return render_template("editpost.html", post=post)
+#  ACTIONS
 
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
@@ -98,8 +113,8 @@ def comment():
     postdate = datetime.datetime.now()
 
     #joe added content2 and changed comment
-    content2 = links(content)
-    comment = Comment(content2, postdate)
+#    content2 = links(content)
+    comment = Comment(content, postdate)
 
     current_user.comments.append(comment)
     post.comments.append(comment)
@@ -164,7 +179,8 @@ def action_post():
     content = request.form['content']
 
 
-    parent = parent_obj
+#    parent = parent_obj
+
     private = False
     test = request.form.get('private')
     if test:

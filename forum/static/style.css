@@ -19,6 +19,14 @@
 	padding: 0.5%;
 	margin-bottom: none;
 }
+.footer{
+	border: 1px solid black;
+	overflow: hidden;
+	vertical-align: middle;
+	padding: 0.5%;
+	margin-bottom: none;
+}
+
 .content{
 	margin-top: 0.5%;
 }
