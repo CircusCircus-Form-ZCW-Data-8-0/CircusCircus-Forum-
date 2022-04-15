@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 
 def save_picture(form_picture):
     random_hex=secrets.token_hex(8)
-    _, f_ext =ox.path.splitext(form_picture.filename)
+    _, f_ext =os.path.splitext(form_picture.filename)
     picture_fn= random_hex + f_ext
     picture_path = os.path.join(app.root_path,'static/', picture_fn)
     form_picture.save(picture_path)
@@ -26,14 +26,6 @@ def save_picture(form_picture):
 
 
 @login_required
-<<<<<<< HEAD
-@app.route('/action_profile')
-def action_profile():
-
-    image_file=url_for('static',filename='/' + str(current_user.image_file))  # this is current user image from location
-    return render_template('account.html' ,image_file=image_file) #assigning image_file to account.html
-
-=======
 @app.route('/action_profile', methods=['GET','POST'])
 def action_profile():
     form = UpdateAccountForm()
@@ -74,5 +66,3 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('That email is taken. Please choose a different one.')
->>>>>>> 2e13702ce1fa347852064fe8a6365a8c00b5425a
-
