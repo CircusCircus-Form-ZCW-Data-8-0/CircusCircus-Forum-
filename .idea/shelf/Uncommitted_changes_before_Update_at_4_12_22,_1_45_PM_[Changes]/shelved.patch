@@ -1,0 +1,166 @@
+Index: forum/forum.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import *\n# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user\nfrom flask_login import LoginManager, current_user, login_user, logout_user\nimport datetime\n\nfrom flask_login.utils import login_required\nfrom forum.app import app\nfrom flask_sqlalchemy import SQLAlchemy\n\nfrom flask_login import UserMixin\nimport re\nimport datetime\nfrom flask_login.login_manager import LoginManager\nfrom werkzeug.security import generate_password_hash, check_password_hash\n\ndb = SQLAlchemy(app)\n\n\n# VIEWS\n\n@app.route('/')\ndef index():\n    subforums = Subforum.query.filter(Subforum.parent_id == None).order_by(Subforum.id)\n    return render_template(\"subforums.html\", subforums=subforums)\n\n\n@app.route('/subforum')\ndef subforum():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n    if not subforum:\n        return error(\"That subforum does not exist!\")\n    posts = Post.query.filter(Post.subforum_id == subforum_id).order_by(Post.id.desc()).limit(50)\n    if not subforum.path:\n        subforum.path = generateLinkPath(subforum.id)\n\n    subforums = Subforum.query.filter(Subforum.parent_id == subforum_id).all()\n    return render_template(\"subforum.html\", subforum=subforum, posts=posts, subforums=subforums, path=subforum.path)\n\n\n@app.route('/loginform')\ndef loginform():\n    return render_template(\"login.html\")\n\n\n@login_required\n@app.route('/addpost')\ndef addpost():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n    if not subforum:\n        return error(\"That subforum does not exist!\")\n\n    return render_template(\"createpost.html\", subforum=subforum)\n\n\n#@login_required\n#@app.route('/addpost')\n# def private_addpost():\n# \tsubforum_id = int(request.args.get(\"sub\"))\n# \tsubforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n# \tif not subforum:\n# \t\treturn error(\"That subforum does not exist!\")\n#\n# \treturn render_template(\"createpost.html\", subforum=subforum)\n\n@app.route('/viewpost')\ndef viewpost():\n\n\tpostid = int(request.args.get(\"post\"))\n\tpost = Post.query.filter(Post.id == postid).first()\n#\tif post.private:\n#\t\tif not current_user:\n#\t\t\treturn error('login')\n\tif not post:\n\t\treturn error(\"That post does not exist!\")\n\tif not post.subforum.path:\n\t\tsubforum.path = generateLinkPath(post.subforum.id)\n\tcomments = Comment.query.filter(Comment.post_id == postid).order_by(\n    Comment.id.desc()) # no need for scalability now\n\treturn render_template(\"viewpost.html\", post=post, path=subforum.path, comments=comments)\n\n\n\n\n@login_required\n@app.route('/action_comment', methods=['POST', 'GET'])\ndef comment():\n    post_id = int(request.args.get(\"post\"))\n    post = Post.query.filter(Post.id == post_id).first()\n    if not post:\n        return error(\"That post does not exist!\")\n    content = request.form['content']\n    postdate = datetime.datetime.now()\n    comment = Comment(content, postdate)\n    current_user.comments.append(comment)\n    post.comments.append(comment)\n    db.session.commit()\n    return redirect(\"/viewpost?post=\" + str(post_id))\n\n\n@login_required\n@app.route('/action_post', methods=['POST'])\ndef action_post():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n    if not subforum:\n        return redirect(url_for(\"subforums\"))\n\n    user = current_user\n    title = request.form['title']\n    content = request.form['content']\n    # check for valid posting\n    errors = []\n    retry = False\n    if not valid_title(title):\n        errors.append(\"Title must be between 4 and 140 characters long!\")\n        retry = True\n    if not valid_content(content):\n        errors.append(\"Post must be between 10 and 5000 characters long!\")\n        retry = True\n    if retry:\n        return render_template(\"createpost.html\", subforum=subforum, errors=errors)\n    post = Post(title, content, datetime.datetime.now())\n    subforum.posts.append(post)\n    user.posts.append(post)\n    db.session.commit()\n    return redirect(\"/viewpost?post=\" + str(post.id))\n\n\n@app.route('/action_login', methods=['POST'])\ndef action_login():\n    username = request.form['username']\n    password = request.form['password']\n    user = User.query.filter(User.username == username).first()\n    if user and user.check_password(password):\n        login_user(user)\n    else:\n        errors = []\n        errors.append(\"Username or password is incorrect!\")\n        return render_template(\"login.html\", errors=errors)\n    return redirect(\"/\")\n\n\n@login_required\n@app.route('/action_logout')\ndef action_logout():\n\n\t#todo\n\tlogout_user()\n\treturn redirect(\"/\")\n\"\"\"\nThis is User Account setting -Vandana\n\"\"\"\n@login_required\n@app.route('/action_account')\ndef action_account():\n  #image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db\n # image_file = url_for('static', filename='profile/default.jpeg')\n  return render_template('account.html',title='Account1')#,image_file=image_file) #assigning image_file to db\n\n\n\n\n@app.route('/action_createaccount', methods=['POST'])\ndef action_createaccount():\n    username = request.form['username']\n    password = request.form['password']\n    email = request.form['email']\n    errors = []\n    retry = False\n    if username_taken(username):\n        errors.append(\"Username is already taken!\")\n        retry = True\n    if email_taken(email):\n        errors.append(\"An account already exists with this email!\")\n        retry = True\n    if not valid_username(username):\n        errors.append(\"Username is not valid!\")\n        retry = True\n    if not valid_password(password):\n        errors.append(\"Password is not valid!\")\n        retry = True\n    if retry:\n        return render_template(\"login.html\", errors=errors)\n    user = User(email, username, password)\n    if user.username == \"admin\":\n        user.admin = True\n    db.session.add(user)\n    db.session.commit()\n    login_user(user)\n    return redirect(\"/\")\n\n\ndef error(errormessage):\n    return \"<b style=\\\"color: red;\\\">\" + errormessage + \"</b>\"\n\n\ndef generateLinkPath(subforumid):\n    links = []\n    subforum = Subforum.query.filter(Subforum.id == subforumid).first()\n    parent = Subforum.query.filter(Subforum.id == subforum.parent_id).first()\n    links.append(\"<a href=\\\"/subforum?sub=\" + str(subforum.id) + \"\\\">\" + subforum.title + \"</a>\")\n    while parent is not None:\n        links.append(\"<a href=\\\"/subforum?sub=\" + str(parent.id) + \"\\\">\" + parent.title + \"</a>\")\n        parent = Subforum.query.filter(Subforum.id == parent.parent_id).first()\n    links.append(\"<a href=\\\"/\\\">Forum Index</a>\")\n    link = \"\"\n    for l in reversed(links):\n        link = link + \" / \" + l\n    return link\n\n\n# from forum.app import db, app\n\n\nlogin_manager = LoginManager()\nlogin_manager.init_app(app)\n\n\n# if __name__ == \"__main__\":\n# \t#runsetup()\n# \tport = int(os.environ[\"PORT\"])\n# \tapp.run(host='0.0.0.0', port=port, debug=True)\n\n\n# DATABASE STUFF\n@login_manager.user_loader\ndef load_user(userid):\n    return User.query.get(userid)\n\n\npassword_regex = re.compile(\"^[a-zA-Z0-9!@#%&]{6,40}$\")\nusername_regex = re.compile(\"^[a-zA-Z0-9!@#%&]{4,40}$\")\n\n\n# Account checks\ndef username_taken(username):\n    return User.query.filter(User.username == username).first()\n\n\ndef email_taken(email):\n    return User.query.filter(User.email == email).first()\n\n\ndef valid_username(username):\n    if not username_regex.match(username):\n        # username does not meet password reqirements\n        return False\n    # username is not taken and does meet the password requirements\n    return True\n\n\ndef valid_password(password):\n    return password_regex.match(password)\n\n\n# Post checks\ndef valid_title(title):\n    return len(title) > 4 and len(title) < 140\n\n\ndef valid_content(content):\n    return len(content) > 10 and len(content) < 5000\n\n\n# OBJECT MODELS\nclass User(UserMixin, db.Model):\n\n\tid = db.Column(db.Integer, primary_key=True)\n\tusername = db.Column(db.Text, unique=True)\n\tpassword_hash = db.Column(db.Text)\n\temail = db.Column(db.Text, unique=True)\n\tadmin = db.Column(db.Boolean, default=False, unique=True)\n\tposts = db.relationship(\"Post\", backref=\"user\")\n\tcomments = db.relationship(\"Comment\", backref=\"user\")\n\t#image_file = db.Column(db.Text, default='default.jpeg')\n    #image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db\n\n\tdef __init__(self, email, username, password):\n\t\tself.email = email\n\t\tself.username = username\n\t\tself.password_hash = generate_password_hash(password)\n    \n\tdef check_password(self, password):\n\t\treturn check_password_hash(self.password_hash, password)\n\nclass Post(db.Model):\n\n    id = db.Column(db.Integer, primary_key=True)\n    title = db.Column(db.Text)\n    content = db.Column(db.Text)\n    comments = db.relationship(\"Comment\", backref=\"post\")\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))\n    subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))\n    postdate = db.Column(db.DateTime)\n#\t  private = db.Column(db.Boolean, default=False)\n    \n    # cache stuff\n    lastcheck = None\n    savedresponce = None\n\n    def __init__(self, title, content, postdate):\n        self.title = title\n        self.content = content\n        self.postdate = postdate\n#   \t\tself.private = private\n        \n    def get_time_string(self):\n        # this only needs to be calculated every so often, not for every request\n        # this can be a rudamentary chache\n        now = datetime.datetime.now()\n        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:\n            self.lastcheck = now\n        else:\n            return self.savedresponce\n\n        diff = now - self.postdate\n\n        seconds = diff.total_seconds()\n        print(seconds)\n        if seconds / (60 * 60 * 24 * 30) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24 * 30))) + \" months ago\"\n        elif seconds / (60 * 60 * 24) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24))) + \" days ago\"\n        elif seconds / (60 * 60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60))) + \" hours ago\"\n        elif seconds / (60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / 60)) + \" minutes ago\"\n        else:\n            self.savedresponce = \"Just a moment ago!\"\n\n        return self.savedresponce\n\n\n\nclass Subforum(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    title = db.Column(db.Text, unique=True)\n    description = db.Column(db.Text)\n    subforums = db.relationship(\"Subforum\")\n    parent_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))\n    posts = db.relationship(\"Post\", backref=\"subforum\")\n    path = None\n    hidden = db.Column(db.Boolean, default=False)\n\n    def __init__(self, title, description):\n        self.title = title\n        self.description = description\n\n\nclass Comment(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    content = db.Column(db.Text)\n    postdate = db.Column(db.DateTime)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))\n    post_id = db.Column(db.Integer, db.ForeignKey(\"post.id\"))\n    # Add parent key\n    parent_id = db.ForeignKey(\"self\", null=True, Blank=True)\n\n    lastcheck = None\n    savedresponce = None\n\n    def __init__(self, content, postdate):\n        self.content = content\n        self.postdate = postdate\n\n    class Meta:\n        ordering = ['postdate']\n\n    # Add Children instance method\n    def children(self):  # replies\n        return Comment.objects.filter(parent_id=self)\n\n    @property\n    def is_parent(self):\n        if self.parent is not None:\n            return False\n        return True\n\n    def get_time_string(self):\n        # this only needs to be calculated every so often, not for every request\n        # this can be a rudamentary chache\n        now = datetime.datetime.now()\n        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:\n            self.lastcheck = now\n        else:\n            return self.savedresponce\n\n        diff = now - self.postdate\n        seconds = diff.total_seconds()\n        if seconds / (60 * 60 * 24 * 30) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24 * 30))) + \" months ago\"\n        elif seconds / (60 * 60 * 24) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24))) + \" days ago\"\n        elif seconds / (60 * 60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60))) + \" hours ago\"\n        elif seconds / (60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / 60)) + \" minutes ago\"\n        else:\n            self.savedresponce = \"Just a moment ago!\"\n        return self.savedresponce\n\n\ndef init_site():\n    admin = add_subforum(\"Forum\", \"Announcements, bug reports, and general discussion about the forum belongs here\")\n    add_subforum(\"Announcements\", \"View forum announcements here\", admin)\n    add_subforum(\"Bug Reports\", \"Report bugs with the forum here\", admin)\n    add_subforum(\"General Discussion\", \"Use this subforum to post anything you want\")\n    add_subforum(\"Other\", \"Discuss other things here\")\n\n\ndef add_subforum(title, description, parent=None):\n    sub = Subforum(title, description)\n    if parent:\n        for subforum in parent.subforums:\n            if subforum.title == title:\n                return\n        parent.subforums.append(sub)\n    else:\n        subforums = Subforum.query.filter(Subforum.parent_id == None).all()\n        for subforum in subforums:\n            if subforum.title == title:\n                return\n        db.session.add(sub)\n    print(\"adding \" + title)\n    db.session.commit()\n    return sub\n\n\n\"\"\"\ndef interpret_site_value(subforumstr):\n\tsegments = subforumstr.split(':')\n\tidentifier = segments[0]\n\tdescription = segments[1]\n\tparents = []\n\thasparents = False\n\twhile('.' in identifier):\n\t\thasparents = True\n\t\tdotindex = identifier.index('.')\n\t\tparents.append(identifier[0:dotindex])\n\t\tidentifier = identifier[dotindex + 1:]\n\tif hasparents:\n\t\tdirectparent = subforum_from_parent_array(parents)\n\t\tif directparent is None:\n\t\t\tprint(identifier + \" could not find parents\")\n\t\telse:\n\t\t\tadd_subforum(identifier, description, directparent)\n\telse:\n\t\tadd_subforum(identifier, description)\n\ndef subforum_from_parent_array(parents):\n\tsubforums = Subforum.query.filter(Subforum.parent_id == None).all()\n\ttop_parent = parents[0]\n\tparents = parents[1::]\n\tfor subforum in subforums:\n\t\tif subforum.title == top_parent:\n\t\t\tcur = subforum\n\t\t\tfor parent in parents:\n\t\t\t\tfor child in subforum.subforums:\n\t\t\t\t\tif child.title == parent:\n\t\t\t\t\t\tcur = child\n\t\t\treturn cur\n\treturn None\n\n\ndef setup():\n\tsiteconfig = open('./config/subforums', 'r')\n\tfor value in siteconfig:\n\t\tinterpret_site_value(value)\n\"\"\"\n\ndb.create_all()\nif not Subforum.query.all():\n    init_site()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/forum/forum.py b/forum/forum.py
+--- a/forum/forum.py	(revision 915fdfb548584ece140ed318bd3cc3a683d7e6db)
++++ b/forum/forum.py	(date 1649779074935)
+@@ -67,18 +67,18 @@
+ @app.route('/viewpost')
+ def viewpost():
+ 
+-	postid = int(request.args.get("post"))
+-	post = Post.query.filter(Post.id == postid).first()
++    postid = int(request.args.get("post"))
++    post = Post.query.filter(Post.id == postid).first()
+ #	if post.private:
+ #		if not current_user:
+ #			return error('login')
+-	if not post:
+-		return error("That post does not exist!")
+-	if not post.subforum.path:
+-		subforum.path = generateLinkPath(post.subforum.id)
+-	comments = Comment.query.filter(Comment.post_id == postid).order_by(
++    if not post:
++        return error("That post does not exist!")
++    if not post.subforum.path:
++        subforum.path = generateLinkPath(post.subforum.id)
++    comments = Comment.query.filter(Comment.post_id == postid).order_by(
+     Comment.id.desc()) # no need for scalability now
+-	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
++    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+ 
+ 
+ 
+@@ -146,9 +146,9 @@
+ @app.route('/action_logout')
+ def action_logout():
+ 
+-	#todo
+-	logout_user()
+-	return redirect("/")
++    #todo
++    logout_user()
++    return redirect("/")
+ """
+ This is User Account setting -Vandana
+ """
+@@ -267,23 +267,23 @@
+ # OBJECT MODELS
+ class User(UserMixin, db.Model):
+ 
+-	id = db.Column(db.Integer, primary_key=True)
+-	username = db.Column(db.Text, unique=True)
+-	password_hash = db.Column(db.Text)
+-	email = db.Column(db.Text, unique=True)
+-	admin = db.Column(db.Boolean, default=False, unique=True)
+-	posts = db.relationship("Post", backref="user")
+-	comments = db.relationship("Comment", backref="user")
+-	#image_file = db.Column(db.Text, default='default.jpeg')
++    id = db.Column(db.Integer, primary_key=True)
++    username = db.Column(db.Text, unique=True)
++    password_hash = db.Column(db.Text)
++    email = db.Column(db.Text, unique=True)
++    admin = db.Column(db.Boolean, default=False, unique=True)
++    posts = db.relationship("Post", backref="user")
++    comments = db.relationship("Comment", backref="user")
++    #image_file = db.Column(db.Text, default='default.jpeg')
+     #image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
+ 
+-	def __init__(self, email, username, password):
+-		self.email = email
+-		self.username = username
+-		self.password_hash = generate_password_hash(password)
++    def __init__(self, email, username, password):
++        self.email = email
++        self.username = username
++        self.password_hash = generate_password_hash(password)
+     
+-	def check_password(self, password):
+-		return check_password_hash(self.password_hash, password)
++    def check_password(self, password):
++        return check_password_hash(self.password_hash, password)
+ 
+ class Post(db.Model):
+ 
+@@ -430,44 +430,44 @@
+ 
+ """
+ def interpret_site_value(subforumstr):
+-	segments = subforumstr.split(':')
+-	identifier = segments[0]
+-	description = segments[1]
+-	parents = []
+-	hasparents = False
+-	while('.' in identifier):
+-		hasparents = True
+-		dotindex = identifier.index('.')
+-		parents.append(identifier[0:dotindex])
+-		identifier = identifier[dotindex + 1:]
+-	if hasparents:
+-		directparent = subforum_from_parent_array(parents)
+-		if directparent is None:
+-			print(identifier + " could not find parents")
+-		else:
+-			add_subforum(identifier, description, directparent)
+-	else:
+-		add_subforum(identifier, description)
++    segments = subforumstr.split(':')
++    identifier = segments[0]
++    description = segments[1]
++    parents = []
++    hasparents = False
++    while('.' in identifier):
++        hasparents = True
++        dotindex = identifier.index('.')
++        parents.append(identifier[0:dotindex])
++        identifier = identifier[dotindex + 1:]
++    if hasparents:
++        directparent = subforum_from_parent_array(parents)
++        if directparent is None:
++            print(identifier + " could not find parents")
++        else:
++            add_subforum(identifier, description, directparent)
++    else:
++        add_subforum(identifier, description)
+ 
+ def subforum_from_parent_array(parents):
+-	subforums = Subforum.query.filter(Subforum.parent_id == None).all()
+-	top_parent = parents[0]
+-	parents = parents[1::]
+-	for subforum in subforums:
+-		if subforum.title == top_parent:
+-			cur = subforum
+-			for parent in parents:
+-				for child in subforum.subforums:
+-					if child.title == parent:
+-						cur = child
+-			return cur
+-	return None
++    subforums = Subforum.query.filter(Subforum.parent_id == None).all()
++    top_parent = parents[0]
++    parents = parents[1::]
++    for subforum in subforums:
++        if subforum.title == top_parent:
++            cur = subforum
++            for parent in parents:
++                for child in subforum.subforums:
++                    if child.title == parent:
++                        cur = child
++            return cur
++    return None
+ 
+ 
+ def setup():
+-	siteconfig = open('./config/subforums', 'r')
+-	for value in siteconfig:
+-		interpret_site_value(value)
++    siteconfig = open('./config/subforums', 'r')
++    for value in siteconfig:
++        interpret_site_value(value)
+ """
+ 
+ db.create_all()

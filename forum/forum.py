@@ -1,5 +1,5 @@
 
-# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
+#from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 #from forum.links import links
@@ -66,8 +66,9 @@ def viewpost():
 
     if post.private == True:
         if not current_user.is_authenticated:
-            return error('login to view')
-
+            flash('Please log in to view')
+            return render_template("login.html")
+            return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -79,9 +80,13 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['GET', 'POST'])
 def editpost():
+    #form = Post()
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if post:
+        post.title = post.title
+        post.content = post.content
+
         db.session.add(post)
         db.session.commit()
         flash('Post updated!')
@@ -98,6 +103,8 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
 
+    #joe added content2 and changed comment
+    content2 = links(content)
 ####### Madhavi ########
     # Like button
 
@@ -112,9 +119,6 @@ def comment():
 
     postdate = datetime.datetime.now()
 
-    #joe added content2 and changed comment
-
-    content2 = links(content)
     comment = Comment(content2, postdate)
 
 
@@ -180,7 +184,8 @@ def action_post():
     user = current_user
     title = request.form['title']
     content = request.form['content']
-
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
 
 #    parent = parent_obj
 
@@ -215,9 +220,8 @@ def action_post():
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
 
-    post = Post(title, content, datetime.datetime.now(), private)
-    #joe added content2 and added it to post instead of content for displaying links
-    content2 = links(content)
+    post = Post(title, content2, datetime.datetime.now(), private)
+
 
     subforum.posts.append(post)
     user.posts.append(post)

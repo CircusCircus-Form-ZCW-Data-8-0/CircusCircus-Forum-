@@ -1,0 +1,73 @@
+Index: forum/user_setting.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import *\nfrom flask_login.utils import login_required\nfrom forum.app import app\nfrom flask_sqlalchemy import SQLAlchemy\n\nfrom forum.model import *\nfrom forum.forum import *\n\n\n@login_required\n@app.route('/action_account')\ndef action_account():\n    # image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db\n    # image_file = url_for('static', filename='profile/default.jpeg')\n    return render_template('account.html', title='Account1')  # ,image_file=image_file) #assigning image_file to db\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/forum/user_setting.py b/forum/user_setting.py
+--- a/forum/user_setting.py	(revision ea43e10bf2661a8a09b531c775bf1302e176ba20)
++++ b/forum/user_setting.py	(date 1649875851452)
+@@ -7,9 +7,10 @@
+ from forum.forum import *
+ 
+ 
++
+ @login_required
+ @app.route('/action_account')
+ def action_account():
+-    # image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image storing in db
+-    # image_file = url_for('static', filename='profile/default.jpeg')
+-    return render_template('account.html', title='Account1')  # ,image_file=image_file) #assigning image_file to db
++    # image_file=url_for('static',filename='profile/' + current_user.image_file)  # this is current user image from location
++   # image_file = url_for('static', + current_user.image_file )
++    return render_template('account.html' )#,image_file=image_file) #assigning image_file to db
+Index: forum/model.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import *\n# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user\nfrom flask_login import LoginManager, current_user, login_user, logout_user\nimport datetime\n\nfrom flask_login.utils import login_required\nfrom forum.app import app\nimport forum.forum\nfrom flask_sqlalchemy import SQLAlchemy\n\nfrom flask_login import UserMixin\nimport re\nimport datetime\nfrom flask_login.login_manager import LoginManager\nfrom werkzeug.security import generate_password_hash, check_password_hash\n\n\nfrom forum.forum import *\nfrom forum.user_setting import *\n\n\n\n\ndb = SQLAlchemy(app)\n\n\n# OBJECT MODELS\nclass User(UserMixin, db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    username = db.Column(db.Text, unique=True)\n    password_hash = db.Column(db.Text)\n    email = db.Column(db.Text, unique=True)\n    admin = db.Column(db.Boolean, default=False, unique=True)\n    posts = db.relationship(\"Post\", backref=\"user\")\n    comments = db.relationship(\"Comment\", backref=\"user\")\n\n        # image_file = db.Column(db.Text, default='default.jpeg')\n        # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db\n\n    def __init__(self, email, username, password):\n        self.email = email\n        self.username = username\n        self.password_hash = generate_password_hash(password)\n\n    def check_password(self, password):\n        return check_password_hash(self.password_hash, password)\n\n\nclass Post(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    title = db.Column(db.Text)\n    content = db.Column(db.Text)\n    comments = db.relationship(\"Comment\", backref=\"post\")\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))\n    subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))\n    postdate = db.Column(db.DateTime)\n\n    # cache stuff\n    lastcheck = None\n    savedresponce = None\n\n    def __init__(self, title, content, postdate):\n        self.title = title\n        self.content = content\n        self.postdate = postdate\n        # self.private = private\n\n    def get_time_string(self):\n        # this only needs to be calculated every so often, not for every request\n        # this can be a rudamentary chache\n        now = datetime.datetime.now()\n        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:\n            self.lastcheck = now\n        else:\n            return self.savedresponce\n\n        diff = now - self.postdate\n\n        seconds = diff.total_seconds()\n        print(seconds)\n        if seconds / (60 * 60 * 24 * 30) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24 * 30))) + \" months ago\"\n        elif seconds / (60 * 60 * 24) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24))) + \" days ago\"\n        elif seconds / (60 * 60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60))) + \" hours ago\"\n        elif seconds / (60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / 60)) + \" minutes ago\"\n        else:\n            self.savedresponce = \"Just a moment ago!\"\n\n        return self.savedresponce\n\n\nclass Subforum(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    title = db.Column(db.Text, unique=True)\n    description = db.Column(db.Text)\n    subforums = db.relationship(\"Subforum\")\n    parent_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))\n    posts = db.relationship(\"Post\", backref=\"subforum\")\n    path = None\n    hidden = db.Column(db.Boolean, default=False)\n\n    def __init__(self, title, description):\n        self.title = title\n        self.description = description\n\n\nclass Comment(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    content = db.Column(db.Text)\n    postdate = db.Column(db.DateTime)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))\n    post_id = db.Column(db.Integer, db.ForeignKey(\"post.id\"))\n    # Add parent key\n    parent_id = db.ForeignKey(\"self\", null=True, Blank=True)\n\n\n    lastcheck = None\n    savedresponce = None\n\n    def __init__(self, content, postdate):\n        self.content = content\n        self.postdate = postdate\n\n    class Meta:\n        ordering = ['postdate']\n\n    # Add Children instance method\n    def children(self):  # replies\n        return Comment.objects.filter(parent_id=self)\n\n    @property\n    def is_parent(self):\n        if self.parent is not None:\n            return False\n        return True\n\n    def __init__(self, content, postdate):\n        self.content = content\n        self.postdate = postdate\n\n    def get_time_string(self):\n        # this only needs to be calculated every so often, not for every request\n        # this can be a rudamentary chache\n        now = datetime.datetime.now()\n        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:\n            self.lastcheck = now\n        else:\n            return self.savedresponce\n\n        diff = now - self.postdate\n        seconds = diff.total_seconds()\n        if seconds / (60 * 60 * 24 * 30) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24 * 30))) + \" months ago\"\n        elif seconds / (60 * 60 * 24) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60 * 24))) + \" days ago\"\n        elif seconds / (60 * 60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / (60 * 60))) + \" hours ago\"\n        elif seconds / (60) > 1:\n            self.savedresponce = \" \" + str(int(seconds / 60)) + \" minutes ago\"\n        else:\n            self.savedresponce = \"Just a moment ago!\"\n        return self.savedresponce\n\ndb.create_all()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/forum/model.py b/forum/model.py
+--- a/forum/model.py	(revision ea43e10bf2661a8a09b531c775bf1302e176ba20)
++++ b/forum/model.py	(date 1649875851449)
+@@ -30,12 +30,12 @@
+     username = db.Column(db.Text, unique=True)
+     password_hash = db.Column(db.Text)
+     email = db.Column(db.Text, unique=True)
++   # image_file=db.Column(db.Text,default='default.jpg')
+     admin = db.Column(db.Boolean, default=False, unique=True)
+     posts = db.relationship("Post", backref="user")
+     comments = db.relationship("Comment", backref="user")
+ 
+-        # image_file = db.Column(db.Text, default='default.jpeg')
+-        # image_file=db.Column(db.text,unique=True)  #Vandana added for image_file to store in db
++
+ 
+     def __init__(self, email, username, password):
+         self.email = email
+Index: forum/templates/account.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'layout.html' %}\n{% block body %}\n\n      <div class=\"media\" >\n\n          <img class=\"rounded-circle account-img\"src='/static/profile/default.jpeg'>\n          <div class=\"media-body\">\n              <h2 class=\"account-heading\">{{current_user.username}} </h2>\n              <p class=\"text-secondary\">{{current_user.email}}</p>\n          </div>\n      </div>\n\n\n\n\n\n\n\n{% endblock %}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/forum/templates/account.html b/forum/templates/account.html
+--- a/forum/templates/account.html	(revision ea43e10bf2661a8a09b531c775bf1302e176ba20)
++++ b/forum/templates/account.html	(date 1649875851452)
+@@ -3,9 +3,11 @@
+ 
+       <div class="media" >
+ 
+-          <img class="rounded-circle account-img"src='/static/profile/default.jpeg'>
++           <img class="rounded-circle account-img"src='../../../static/test.png'>
++
++         <!--<img class="round-circle account-img" src="{{image_file}}">-->
+           <div class="media-body">
+-              <h2 class="account-heading">{{current_user.username}} </h2>
++              <p class="text-secondary">{{current_user.username}} </p>
+               <p class="text-secondary">{{current_user.email}}</p>
+           </div>
+       </div>
