@@ -1,33 +1,15 @@
-#from Flask import Markup
 
-url_label = Markup("<a href='YOUR_URL'>Main Website</a>")
+from urllib.parse import urlparse, urlsplit
 
-
-
-# @login_required
-# @app.route('/action_post', methods=['POST'])
-# def action_post():
-# 	subforum_id = int(request.args.get("sub"))
-# 	subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
-# 	if not subforum:
-# 		return redirect(url_for("subforums"))
-#
-# 	user = current_user
-# 	title = request.form['title']
-# 	content = request.form['content']
-# 	#check for valid posting
-# 	errors = []
-# 	retry = False
-# 	if not valid_title(title):
-# 		errors.append("Title must be between 4 and 140 characters long!")
-# 		retry = True
-# 	if not valid_content(content):
-# 		errors.append("Post must be between 10 and 5000 characters long!")
-# 		retry = True
-# 	if retry:
-# 		return render_template("createpost.html",subforum=subforum,  errors=errors)
-# 	post = Post(title, content, datetime.datetime.now())
-# 	subforum.posts.append(post)
-# 	user.posts.append(post)
-# 	db.session.commit()
-# 	return redirect("/viewpost?post=" + str(post.id))
+def links(content):
+    url = urlparse(content)
+    if (url.scheme and url.netloc and url.path is not None) and len(url.netloc.split('.')) > 1:
+        url1 = ''
+        link_string = '<a href = "'
+        link_string = link_string + content
+        link_string = link_string + '">'
+        link_string = link_string + content + '</a><br>\n'
+        url1 += link_string
+        return url1
+    else:
+        return content

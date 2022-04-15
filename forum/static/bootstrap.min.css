@@ -11,6 +11,8 @@ html{font-family:sans-serif;
 
 
  body{margin:0
+ background-color: lightblue;
+ border-radius: 100px;
  }
 
 
@@ -34,7 +36,7 @@ audio:not([controls]){
 }
 
 a{
-    background-color:transparent
+    background-color:transparent;
 }
 
 a:active,a:hover{
@@ -1445,6 +1447,19 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 @media print{.visible-print-block{display:block!important}}
 .visible-print-inline{display:none!important}
 @media print{.visible-print-inline{display:inline!important}}
-.visible-print-inline-block{display:none!important}
-@media print{.visible-print-inline-block{display:inline-block!important}}
-@media print{.hidden-print{display:none!important}}
+
+.visible-print-inline-block{
+    display:none!important
+}
+
+@media print{
+    .visible-print-inline-block{
+        display:inline-block!important
+    }
+}
+
+@media print{
+    .hidden-print{
+        display:none!important
+    }
+}
