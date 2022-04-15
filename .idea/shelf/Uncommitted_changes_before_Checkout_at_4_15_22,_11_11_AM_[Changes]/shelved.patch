@@ -1,0 +1,84 @@
+Index: forum/forum.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\n# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user\nfrom werkzeug.security import generate_password_hash, check_password_hash\nimport datetime\n#from forum.links import links\nfrom flask_sqlalchemy import SQLAlchemy\nfrom flask_login import UserMixin\nfrom flask import *\nfrom forum.app import app\nfrom flask_login import LoginManager, current_user, login_user, logout_user\nfrom flask_login.utils import login_required\nimport re\nimport datetime\nfrom flask_login.login_manager import LoginManager\n\nfrom werkzeug.security import generate_password_hash, check_password_hash\n\nfrom forum.links import links\n\nfrom forum.model import Subforum, Post, Comment, User, db\n\n\n\n# VIEWS\n\n@app.route('/')\ndef index():\n    subforums = Subforum.query.filter(Subforum.parent_id == None).order_by(Subforum.id)\n    return render_template(\"subforums.html\", subforums=subforums)\n\n\n@app.route('/subforum')\ndef subforum():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n    if not subforum:\n        return error(\"That subforum does not exist!\")\n    posts = Post.query.filter(Post.subforum_id == subforum_id).order_by(Post.id.desc()).limit(50)\n    if not subforum.path:\n        subforum.path = generateLinkPath(subforum.id)\n\n    subforums = Subforum.query.filter(Subforum.parent_id == subforum_id).all()\n    return render_template(\"subforum.html\", subforum=subforum, posts=posts, subforums=subforums, path=subforum.path)\n\n\n@app.route('/loginform')\ndef loginform():\n    return render_template(\"login.html\")\n\n\n@login_required\n@app.route('/addpost')\ndef addpost():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n    if not subforum:\n        return error(\"That subforum does not exist!\")\n\n    return render_template(\"createpost.html\", subforum=subforum)\n\n\n@app.route('/viewpost')\ndef viewpost():\n    postid = int(request.args.get(\"post\"))\n    post = Post.query.filter(Post.id == postid).first()\n\n    if post.private == True:\n        if not current_user.is_authenticated:\n            return error('login to view')\n\n    if not post:\n        return error(\"That post does not exist!\")\n    if not post.subforum.path:\n        subforum.path = generateLinkPath(post.subforum.id)\n    comments = Comment.query.filter(Comment.post_id == postid).order_by(\n        Comment.id.desc())  # no need for scalability now\n    return render_template(\"viewpost.html\", post=post, path=subforum.path, comments=comments)\n\n@login_required\n@app.route('/edit_post', methods=['GET', 'POST'])\ndef editpost():\n    post_id = int(request.args.get(\"post\"))\n    post = Post.query.filter(Post.id == post_id).first()\n    if post:\n        db.session.add(post)\n        db.session.commit()\n        flash('Post updated!')\n        # return render_template(\"editpost.html\", post=post, path=subforum.path, comments=comments)\n        return render_template(\"editpost.html\", post=post)\n#  ACTIONS\n\n@login_required\n@app.route('/action_comment', methods=['POST', 'GET'])\ndef comment():\n    post_id = int(request.args.get(\"post\"))\n    post = Post.query.filter(Post.id == post_id).first()\n    if not post:\n        return error(\"That post does not exist!\")\n    content = request.form['content']\n\n####### Madhavi ########\n    # Like button\n\n    # replaces key word with emoji\n    if '*wink*' in content:\n        content = content.replace('*wink*', '\\U0001F609')\n    if '*smile*' in content:\n        content = content.replace('*smile*', '\\U0001F600')\n    if '*like*' in content:\n        content = content.replace('*like*', '\\U0001F44D')\n####### Madhavi ########\n\n    postdate = datetime.datetime.now()\n\n    #joe added content2 and changed comment\n\n    content2 = links(content)\n    comment = Comment(content2, postdate)\n\n\n    current_user.comments.append(comment)\n    post.comments.append(comment)\n    db.session.commit()\n    return redirect(\"/viewpost?post=\" + str(post_id))\n\n####### Madhavi ########\n@login_required\n@app.route('/comment_comment', methods=['POST', 'GET'])\n# '/action_comment' is how viewpost.html calls comment()\ndef comment_comment():\n    post_id = int(request.args.get(\"post\"))\n    post = Post.query.filter(Post.id == post_id).first()\n\n    parent_id = int(request.args.get(\"parent\"))\n    print(parent_id)\n    parent = Comment.query.filter(Comment.id == parent_id).first()\n    if not post:\n        return error(\"That post does not exist!\")\n    content = request.form['content']\n\n    if not parent:\n        return error(\"This parent comment does not exist!\")\n\n    # Like button\n    like_counter = 0\n    if request.method == 'POST':\n        if request.form.get('action1') == 'Like':\n            print('hello')\n\n    # replaces key word with emoji\n    if '*wink*' in content:\n        content = content.replace('*wink*', '\\U0001F609')\n    if '*smile*' in content:\n        content = content.replace('*smile*', '\\U0001F600')\n    if '*like*' in content:\n        content = content.replace('*like*', '\\U0001F44D')\n\n    postdate = datetime.datetime.now()\n\n    #  content, postdate, user_id, post_id, parent_comment_id = None\n    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)\n    # this creates an instance of comment\n    # go to the post table, go to the comments column, and then add the comment\n\n    db.session.add(comment)\n    db.session.commit()\n    return redirect(\"/viewpost?post=\" + str(post_id))\n####### Madhavi ########\n\n@login_required\n@app.route('/action_post', methods=['GET', 'POST'])\ndef action_post():\n    subforum_id = int(request.args.get(\"sub\"))\n    subforum = Subforum.query.filter(Subforum.id == subforum_id).first()\n\n    if not subforum:\n        return redirect(url_for(\"subforums\"))\n\n    user = current_user\n    title = request.form['title']\n    content = request.form['content']\n\n\n#    parent = parent_obj\n\n    private = False\n    test = request.form.get('private')\n    if test:\n        private = True\n\n    # check for valid posting\n    # replaces key word with emoji\n    if '*wink*' in content or '*wink*' in title:\n        content = content.replace('*wink*', '\\U0001F609')\n        title = title.replace('*wink*', '\\U0001F609')\n    if '*smile*' in content or '*smile*' in title:\n        content = content.replace('*smile*', '\\U0001F600')\n        title = title.replace('*smile*', '\\U0001F600')\n    if '*like*' in content or '*like*' in title:\n        content = content.replace('*like*', '\\U0001F44D')\n        title = title.replace('*like*', '\\U0001F44D')\n\n####### Madhavi ########\n\n\n    errors = []\n    retry = False\n    if not valid_title(title):\n        errors.append(\"Title must be between 4 and 140 characters long!\")\n        retry = True\n    if not valid_content(content):\n        errors.append(\"Post must be between 10 and 5000 characters long!\")\n        retry = True\n    if retry:\n        return render_template(\"createpost.html\", subforum=subforum, errors=errors)\n\n    post = Post(title, content, datetime.datetime.now(), private)\n    #joe added content2 and added it to post instead of content for displaying links\n    content2 = links(content)\n\n    subforum.posts.append(post)\n    user.posts.append(post)\n    db.session.commit()\n    return redirect(\"/viewpost?post=\" + str(post.id))\n\n\n@app.route('/action_login', methods=['POST'])\ndef action_login():\n    username = request.form['username']\n    password = request.form['password']\n    user = User.query.filter(User.username == username).first()\n    if user and user.check_password(password):\n        login_user(user)\n    else:\n        errors = []\n        errors.append(\"Username or password is incorrect!\")\n        return render_template(\"login.html\", errors=errors)\n    return redirect(\"/\")\n\n\n@login_required\n@app.route('/action_logout')\ndef action_logout():\n    # todo\n    logout_user()\n    return redirect(\"/\")\n\n\n@app.route('/action_createaccount', methods=['POST'])\ndef action_createaccount():\n    username = request.form['username']\n    password = request.form['password']\n    email = request.form['email']\n    errors = []\n    retry = False\n    if username_taken(username):\n        errors.append(\"Username is already taken!\")\n        retry = True\n    if email_taken(email):\n        errors.append(\"An account already exists with this email!\")\n        retry = True\n    if not valid_username(username):\n        errors.append(\"Username is not valid!\")\n        retry = True\n    # if not valid_password(password):\n    # \terrors.append(\"Password is not valid!\")\n    # \tretry = True\n    if retry:\n        return render_template(\"login.html\", errors=errors)\n    user = User(email, username, password)\n    if user.username == \"admin\":\n        user.admin = True\n    db.session.add(user)\n    db.session.commit()\n    login_user(user)\n    return redirect(\"/\")\n\n\ndef error(errormessage):\n    return \"<b style=\\\"color: red;\\\">\" + errormessage + \"</b>\"\n\n\ndef generateLinkPath(subforumid):\n    links = []\n    subforum = Subforum.query.filter(Subforum.id == subforumid).first()\n    parent = Subforum.query.filter(Subforum.id == subforum.parent_id).first()\n    links.append(\"<a href=\\\"/subforum?sub=\" + str(subforum.id) + \"\\\">\" + subforum.title + \"</a>\")\n    while parent is not None:\n        links.append(\"<a href=\\\"/subforum?sub=\" + str(parent.id) + \"\\\">\" + parent.title + \"</a>\")\n        parent = Subforum.query.filter(Subforum.id == parent.parent_id).first()\n    links.append(\"<a href=\\\"/\\\">Forum Index</a>\")\n    link = \"\"\n    for l in reversed(links):\n        link = link + \" / \" + l\n    return link\n\n\n# from forum.app import db, app\n\n\nlogin_manager = LoginManager()\nlogin_manager.init_app(app)\n\n\n# if __name__ == \"__main__\":\n# \t#runsetup()\n# \tport = int(os.environ[\"PORT\"])\n# \tapp.run(host='0.0.0.0', port=port, debug=True)\n\n\n# DATABASE STUFF\n@login_manager.user_loader\ndef load_user(userid):\n    return User.query.get(userid)\n\n\npassword_regex = re.compile(\"^[a-zA-Z0-9!@#%&]{6,40}$\")\nusername_regex = re.compile(\"^[a-zA-Z0-9!@#%&]{4,40}$\")\n\n\n# Account checks\ndef username_taken(username):\n    return User.query.filter(User.username == username).first()\n\n\ndef email_taken(email):\n    return User.query.filter(User.email == email).first()\n\n\ndef valid_username(username):\n    if not username_regex.match(username):\n        # username does not meet password reqirements\n        return False\n    # username is not taken and does meet the password requirements\n    return True\n\n\ndef valid_password(password):\n    return password_regex.match(password)\n\n\n# Post checks\ndef valid_title(title):\n    return len(title) > 4 and len(title) < 140\n\n\ndef valid_content(content):\n    return len(content) > 10 and len(content) < 5000\n\n\n\n\ndef init_site():\n    admin = add_subforum(\"Forum\", \"Announcements, bug reports, and general discussion about the forum belongs here\")\n    add_subforum(\"Announcements\", \"View forum announcements here\", admin)\n    add_subforum(\"Bug Reports\", \"Report bugs with the forum here\", admin)\n    add_subforum(\"General Discussion\", \"Use this subforum to post anything you want\")\n    add_subforum(\"Other\", \"Discuss other things here\")\n\n\ndef add_subforum(title, description, parent=None):\n    sub = Subforum(title, description)\n    if parent:\n        for subforum in parent.subforums:\n            if subforum.title == title:\n                return\n        parent.subforums.append(sub)\n    else:\n        subforums = Subforum.query.filter(Subforum.parent_id == None).all()\n        for subforum in subforums:\n            if subforum.title == title:\n                return\n        db.session.add(sub)\n    print(\"adding \" + title)\n    db.session.commit()\n    return sub\n\n\n\"\"\"\ndef interpret_site_value(subforumstr):\n    segments = subforumstr.split(':')\n    identifier = segments[0]\n    description = segments[1]\n    parents = []\n    hasparents = False\n    while('.' in identifier):\n        hasparents = True\n        dotindex = identifier.index('.')\n        parents.append(identifier[0:dotindex])\n        identifier = identifier[dotindex + 1:]\n    if hasparents:\n        directparent = subforum_from_parent_array(parents)\n        if directparent is None:\n            print(identifier + \" could not find parents\")\n        else:\n            add_subforum(identifier, description, directparent)\n    else:\n        add_subforum(identifier, description)\ndef subforum_from_parent_array(parents):\n    subforums = Subforum.query.filter(Subforum.parent_id == None).all()\n    top_parent = parents[0]\n    parents = parents[1::]\n    for subforum in subforums:\n        if subforum.title == top_parent:\n            cur = subforum\n            for parent in parents:\n                for child in subforum.subforums:\n                    if child.title == parent:\n                        cur = child\n            return cur\n    return None\ndef setup():\n    siteconfig = open('./config/subforums', 'r')\n    for value in siteconfig:\n        interpret_site_value(value)\n\"\"\"\n\n\nif not Subforum.query.all():\n    init_site()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/forum/forum.py b/forum/forum.py
+--- a/forum/forum.py	
++++ b/forum/forum.py	
+@@ -97,7 +97,10 @@
+     if not post:
+         return error("That post does not exist!")
+     content = request.form['content']
+-
++    #joe added content2 and changed comment
++    postdate = datetime.datetime.now()
++    content2 = links(content)
++    comment = Comment(content2, postdate)
+ ####### Madhavi ########
+     # Like button
+ 
+@@ -109,15 +112,13 @@
+     if '*like*' in content:
+         content = content.replace('*like*', '\U0001F44D')
+ ####### Madhavi ########
+-
+-    postdate = datetime.datetime.now()
+-
+-    #joe added content2 and changed comment
+-
+-    content2 = links(content)
+-    comment = Comment(content2, postdate)
++    #
++    # postdate = datetime.datetime.now()
+ 
+-
++    # #joe added content2 and changed comment
++    #
++    # content2 = links(content)
++    # comment = Comment(content2, postdate)
+     current_user.comments.append(comment)
+     post.comments.append(comment)
+     db.session.commit()
+@@ -179,7 +180,8 @@
+     user = current_user
+     title = request.form['title']
+     content = request.form['content']
+-
++    #joe added content2 and added it to post instead of content for displaying links
++    content2 = links(content)
+ 
+ #    parent = parent_obj
+ 
+@@ -214,9 +216,8 @@
+     if retry:
+         return render_template("createpost.html", subforum=subforum, errors=errors)
+ 
+-    post = Post(title, content, datetime.datetime.now(), private)
+-    #joe added content2 and added it to post instead of content for displaying links
+-    content2 = links(content)
++
++    post = Post(title, content2, datetime.datetime.now(), private)
+ 
+     subforum.posts.append(post)
+     user.posts.append(post)
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8 (CircusCircus-Forum-)\" project-jdk-type=\"Python SDK\" />\n  <component name=\"PyCharmProfessionalAdvertiser\">\n    <option name=\"shown\" value=\"true\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	
++++ b/.idea/misc.xml	
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (CircusCircus-Forum-)" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (CircusCircus-Forum-)" project-jdk-type="Python SDK" />
+   <component name="PyCharmProfessionalAdvertiser">
+     <option name="shown" value="true" />
+   </component>
