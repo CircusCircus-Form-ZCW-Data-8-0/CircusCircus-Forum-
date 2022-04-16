@@ -2,7 +2,7 @@
 #from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-#from forum.links import links
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import *
