@@ -8,7 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/forum.py" beforeDir="false" afterPath="$PROJECT_DIR$/forum/forum.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forum/templates/editpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/editpost.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forum/templates/viewpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/viewpost.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +82,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f823cbfb-100e-4aeb-b4cb-acc00cb935d1" name="Changes" comment="" />
+      <changelist id="3ee45996-f2c8-44d7-bc00-db84a4edce7a" name="Changes" comment="" />
       <created>1649688081621</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
