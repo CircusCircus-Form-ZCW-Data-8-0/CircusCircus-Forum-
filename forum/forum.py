@@ -74,15 +74,16 @@ def viewpost():
         subforum.path = generateLinkPath(post.subforum.id)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc())  # no need for scalability now
 
-    ### Allen Code
-    newdict = {}
+    ## Allen Code
+    dict1 = {}
     for comment in comments:
         if comment.parent_comment_id is not None:
-            if comment.parent_comment_id not in newdict:
-                newdict[comment.parent_comment_id] = [comment]
+            if comment.parent_comment_id not in dict1:
+                dict1[comment.parent_comment_id] = [comment]
             else:
-                newdict[comment.parent_comment_id].append(comment)
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, newdict=newdict)
+                dict1[comment.parent_comment_id].append(comment)
+    return render_template("viewpost.html", post=post, comments=comments, dict1=dict1, path=subforum.path)
+    ## End
 
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])

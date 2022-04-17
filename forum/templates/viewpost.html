@@ -108,7 +108,7 @@
 
 <div class="comments">
 {% for comment in comments %}
-	{% if comment.id in newdict %}
+	{% if comment.id in dict1 %}
 	<div class="comment" id= "{{ comment.id }}">
 		<div class = "parent_id" id = "{{ comment.parent_comment_id}}"></div>
 		<div class="commentuser">
@@ -139,7 +139,7 @@
 		{% endif %}
 	</div>
 
-		{% for subcomment in newdict[comment.id] %}
+		{% for subcomment in dict1[comment.id] %}
 <!--this goes through comments and displays every comment-->
 <!--this is the display of the comments-->
 	<div class="comment" id = "{{ subcomment.id }}" >
@@ -235,7 +235,7 @@ function toggleSub(this_id){
 
 <!--Madhavi-->
 
-<!--allen
+<!--allen (Duplicated posts, not working)
 {%if comments%}
 <div class="comments">
 {% for comment in comments %}
