@@ -95,7 +95,6 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     # Add parent key
-    parent_id = db.ForeignKey("self", null=True, Blank=True)
 
     ####### Madhavi ########
     comments = db.relationship("Comment")  # relates to
@@ -105,26 +104,13 @@ class Comment(db.Model):
     lastcheck = None
     savedresponce = None
 
-    def __init__(self, content, postdate):
+    ### Allen added instance attributes
+    def __init__(self, content, postdate, user_id, post_id, parent_comment_id=None):
         self.content = content
         self.postdate = postdate
-
-    class Meta:
-        ordering = ['postdate']
-
-    # Add Children instance method
-    def children(self):  # replies
-        return Comment.objects.filter(parent_id=self)
-
-    @property
-    def is_parent(self):
-        if self.parent is not None:
-            return False
-        return True
-
-    def __init__(self, content, postdate):
-        self.content = content
-        self.postdate = postdate
+        self.user_id = user_id
+        self.post_id = post_id
+        self.parent_comment_id = parent_comment_id
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
