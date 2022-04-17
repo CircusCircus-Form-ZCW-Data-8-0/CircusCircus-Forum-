@@ -19,8 +19,7 @@
 <div class="login">
 	{% if current_user.is_authenticated %}
 	<b {% if current_user.admin %} style="color: red;" {% endif %}>{{ current_user.username }}</b>
-
-	<a class="account-heading" href="/action_profile">(Your Profile)</a>
+	<a class="nav-item nav-link" href="{{ url_for( 'action_profile') }} ">(Your Profile)</a>
 	<a class="logoutlink" href="/action_logout">(logout)</a>
 
 
