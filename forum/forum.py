@@ -76,7 +76,7 @@ def viewpost():
     return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
 @login_required
-@app.route('/edit_post', methods=['GET', 'POST'])
+@app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
@@ -85,6 +85,7 @@ def editpost():
         db.session.commit()
         flash('Post updated!')
         return render_template("editpost.html", post=post)
+
 #  ACTIONS
 
 @login_required
