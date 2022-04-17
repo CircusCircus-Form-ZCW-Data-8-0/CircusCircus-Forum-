@@ -72,8 +72,9 @@ def viewpost():
         return error("That post does not exist!")
     if not post.subforum.path:
         subforum.path = generateLinkPath(post.subforum.id)
-    comments = Comment.query.filter(Comment.post_id == postid).order_by(
-        Comment.id.desc())  # no need for scalability now
+    comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc())  # no need for scalability now
+
+    ### Allen Code
     newdict = {}
     for comment in comments:
         if comment.parent_comment_id is not None:
@@ -183,7 +184,7 @@ def comment_comment():
 ####### Madhavi ########
 
 @login_required
-@app.route('/action_post', methods=['GET', 'POST'])
+@app.route('/action_post', methods=['POST'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
@@ -430,6 +431,6 @@ def setup():
         interpret_site_value(value)
 """
 
-
+db.create_all()
 if not Subforum.query.all():
     init_site()

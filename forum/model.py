@@ -104,12 +104,13 @@ class Comment(db.Model):
     lastcheck = None
     savedresponce = None
 
-    def __init__(self, content, postdate, user_id, post_id, parent_id=None):
+    ### Allen added instance attributes
+    def __init__(self, content, postdate, user_id, post_id, parent_comment_id=None):
         self.content = content
         self.postdate = postdate
         self.user_id = user_id
         self.post_id = post_id
-        self.parent_id = parent_id
+        self.parent_comment_id = parent_comment_id
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request
