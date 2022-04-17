@@ -104,7 +104,7 @@
 {%if comments%}
 
 
-<!--Madhavi
+<!--Madhavi-->
 
 <div class="comments">
 {% for comment in comments %}
@@ -126,9 +126,7 @@
 		</div>
 		<div class="addcomment" id="addsubcomment {{ comment.id }}">
 			<form action="/comment_comment?post={{ post.id }}&parent={{ comment.id }}" method="POST">
-_______________________
-				form actions is where to send the data when the work is done, so to the Post table,
-________________________
+				<!--form actions is where to send the data when the work is done, so to the Post table, -->
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
 			</form>
@@ -142,10 +140,8 @@ ________________________
 	</div>
 
 		{% for subcomment in newdict[comment.id] %}
--------------------
-this goes through comments and displays every comment
-this is the display of the comments
----------------------
+<!--this goes through comments and displays every comment-->
+<!--this is the display of the comments-->
 	<div class="comment" id = "{{ subcomment.id }}" >
 		<div class = "parent_id" id = "{{ subcomment.parent_comment_id}}"></div>
 		<div class="commentuser">
@@ -181,9 +177,7 @@ this is the display of the comments
 		</div>
 		<div class="addcomment" id="addsubcomment {{ comment.id }}">
 			<form action="/comment_comment?post={{ post.id }}&parent={{ comment.id }}" method="POST">
-------------
-				form actions is where to send the data when the work is done, so to the Post table,
------------
+				<!--form actions is where to send the data when the work is done, so to the Post table, -->
 				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
 				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
 			</form>
@@ -203,17 +197,10 @@ this is the display of the comments
 
 </div>
 {% endif %}
-----------
-this is the functions of the button and what happens when you click on it
----------
-getElementByID returns the element object who's id matches 'addcomment'
------------
------------
-style.display shows if text is bolded out in several ways: bolded, blocked (between two paragraphs), none means there's not formatting
----------
-----------
-so
-----------
+<!-- this is the functions of the button and what happens when you click on it-->
+<!-- getElementByID returns the element object who's id matches 'addcomment'-->
+<!-- style.display shows if text is bolded out in several ways: bolded, blocked (between two paragraphs), none means there's not formatting-->
+<!--so -->
 <script type="text/javascript">
 function toggle(){
 
@@ -245,15 +232,16 @@ function toggleSub(this_id){
 </script>
 
 
----------------
-Madhavi-->
+
+<!--Madhavi-->
 
 
 
+
+
+
+<!--allen
 {%if comments%}
-
-<!--allen -->
-
 <div class="comments">
 {% for comment in comments %}
 
@@ -292,7 +280,8 @@ Madhavi-->
         {% endif %}
       </p>
 
-
+-------------------
+-->
 		<!--
 		<div class="commentuser">
 			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) -
@@ -306,13 +295,13 @@ Madhavi-->
 		</div>
 
 			-->
-
+<!--
 		</div>
 	</div>
 	<br>
 {% endfor %}
 </div>
-
+-->
 <!--
 {% for comment in comments %}
 	
@@ -339,6 +328,8 @@ Madhavi-->
 </div>
 {% endif %}
 -->
+
+<!--
 <script type="text/javascript">
 function toggle(){
 	var div = document.getElementById("addcomment");

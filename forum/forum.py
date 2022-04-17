@@ -74,7 +74,14 @@ def viewpost():
         subforum.path = generateLinkPath(post.subforum.id)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(
         Comment.id.desc())  # no need for scalability now
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+    newdict = {}
+    for comment in comments:
+        if comment.parent_comment_id is not None:
+            if comment.parent_comment_id not in newdict:
+                newdict[comment.parent_comment_id] = [comment]
+            else:
+                newdict[comment.parent_comment_id].append(comment)
+    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, newdict=newdict)
 
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
@@ -122,7 +129,7 @@ def comment():
 
     postdate = datetime.datetime.now()
 
-    comment = Comment(content2, postdate)
+    comment = Comment(content2, postdate, current_user.id, post_id)
 
 
     current_user.comments.append(comment)
