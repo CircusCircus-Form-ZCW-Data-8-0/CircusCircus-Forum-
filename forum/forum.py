@@ -67,7 +67,6 @@ def viewpost():
         if not current_user.is_authenticated:
             flash('Please log in to view')
             return render_template("login.html")
-        #return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -79,21 +78,13 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
-    #form = Post()
-    post_id = int(request.args.get("post"))
-    post = Post.query.filter(Post.id == post_id).first()
+    postid = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == postid).first()
     if post:
-        post.title = post.title
-        post.content = post.content
-
         db.session.add(post)
         db.session.commit()
         flash('Post updated!')
-        return render_template("editpost.html", post=post, path=subforum.path)
-        #return render_template("editpost.html", post=post)
-    if not subforum:
-        return error("That subforum does not exist!")
-    return render_template("createpost.html", subforum=subforum)
+        return render_template("editpost.html", post=post)
 
 #  ACTIONS
 
@@ -182,7 +173,7 @@ def action_post():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
 
     if not subforum:
-        return redirect(url_for("subforums"))
+        return redirect(url_for("subforum"))
 
     user = current_user
     title = request.form['title']
