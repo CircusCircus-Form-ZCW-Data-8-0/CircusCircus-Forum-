@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block body %}
-
+{% if Post.user_id == current_user.id %}
 <div class="editpost">
 	<form action="action_post?sub={{ post.id }}" method="POST">
 
@@ -16,7 +16,7 @@
 	</form>
 </div>
 </div>
-
+{% endif %}
 {% endblock %}
 
 <!--value = {{post.title}}-->
