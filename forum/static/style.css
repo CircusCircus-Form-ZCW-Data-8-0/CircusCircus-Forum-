@@ -203,3 +203,11 @@
 	margin-left: auto;
 	text-align: center;
 }
+
+.alert.success {
+  background-color: green;
+}
+
+.alert.error {
+  background-color: red;
+}

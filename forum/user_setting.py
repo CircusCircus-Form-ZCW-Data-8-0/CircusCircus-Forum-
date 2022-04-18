@@ -37,16 +37,20 @@ def action_profile():
     print('hi' + str(form.username.data), file=sys.stderr)
 
     if form.validate_on_submit():
-        #if form.picture.data:
-            #picture_file=save_picture(form.picture.data)
-            #current_user.image_file = picture_file
+            if form.picture.data:
+             picture_file=save_picture(form.picture.data)
+             current_user.image_file = picture_file
             #current_user.username = request.form['username']
             print('hi before db update',file=sys.stderr)
             current_user.username = form.username.data
             current_user.email=form.email.data
             print('hi before db update'+current_user.username, file=sys.stderr)
             db.session.commit()
-            flash('Your profile has been updated!','Success')
+            #flash('Your profile has been updated!','Success')
+            #.alert - info
+
+            flash('Your profile has been updated!','success' )
+
             return redirect(url_for('action_profile'))
     elif request.method == 'GET' :
         form.username.data= current_user.username
@@ -73,7 +77,7 @@ class UpdateAccountForm(FlaskForm):
                #user = User.query.filter(User.username == username).first()
                user = User.query.filter_by(username=username.data).first()
                if user:
-                   flash("taken")
+                   #flash('taken','error')
                    raise ValidationError('That username is taken. Please choose a different one.')
 
     def validate_email(self, email):
