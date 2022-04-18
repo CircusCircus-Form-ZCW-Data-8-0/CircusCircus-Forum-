@@ -2,7 +2,7 @@
 #from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-#from forum.links import links
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import *
@@ -148,7 +148,8 @@ def comment_comment():
     if not post:
         return error("That post does not exist!")
     content = request.form['content']
-
+    #joe added content2 and changed comment
+    content2 = links(content)
     if not parent:
         return error("This parent comment does not exist!")
 
@@ -169,7 +170,7 @@ def comment_comment():
     postdate = datetime.datetime.now()
 
     #  content, postdate, user_id, post_id, parent_comment_id = None
-    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
     # this creates an instance of comment
     # go to the post table, go to the comments column, and then add the comment
 
