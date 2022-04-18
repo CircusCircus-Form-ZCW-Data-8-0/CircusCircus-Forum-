@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3ee45996-f2c8-44d7-bc00-db84a4edce7a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/forum/forum.py" beforeDir="false" afterPath="$PROJECT_DIR$/forum/forum.py" afterDir="false" />
-
       <change beforePath="$PROJECT_DIR$/forum/templates/viewpost.html" beforeDir="false" afterPath="$PROJECT_DIR$/forum/templates/viewpost.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,6 +29,12 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/forum/static/style.css" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/requirements.txt" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/forum/templates/header.html" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/forum/forum.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/forum/app.py" root0="FORCE_HIGHLIGHTING" />
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -66,7 +71,7 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="links" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="forum" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CircusCircus-Forum-" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -87,11 +92,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.links" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">

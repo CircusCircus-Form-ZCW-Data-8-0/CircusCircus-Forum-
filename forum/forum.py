@@ -16,7 +16,6 @@ from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from forum.links import links
-
 from forum.model import Subforum, Post, Comment, User, db
 
 
@@ -45,8 +44,9 @@ def subforum():
 
 @app.route('/loginform')
 def loginform():
+    flash('login here')
     return render_template("login.html")
-
+    session['_flashes'].clear()
 
 @login_required
 @app.route('/addpost')
