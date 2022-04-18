@@ -87,14 +87,17 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
-    postid = int(request.args.get("post"))
-    post = Post.query.filter(Post.id == postid).first()
-    if post:
-        db.session.add(post)
-        db.session.commit()
-        flash('Post updated!')
-        return render_template("editpost.html", post=post)
-
+    if current_user.id == Post.user_id:
+        postid = int(request.args.get("post"))
+        post = Post.query.filter(Post.id == postid).first()
+        if post:
+            db.session.add(post)
+            db.session.commit()
+            flash('Post updated!')
+            return render_template("editpost.html", post=post)
+    else:
+        flash("you can't edit this")
+        return render_template("viewpost.html")
 #  ACTIONS
 
 @login_required
