@@ -78,7 +78,6 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
-    if current_user.id == Post.user_id:
         postid = int(request.args.get("post"))
         post = Post.query.filter(Post.id == postid).first()
         if post:
@@ -86,8 +85,7 @@ def editpost():
             db.session.commit()
             flash('Post updated!')
             return render_template("editpost.html", post=post)
-    else:
-        flash("You aren't authorized to edit this post")
+
 #  ACTIONS
 
 @login_required

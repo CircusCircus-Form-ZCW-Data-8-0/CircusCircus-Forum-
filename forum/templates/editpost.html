@@ -1,6 +1,5 @@
 {% extends 'layout.html' %}
 {% block body %}
-{% if Post.user_id == current_user.id %}
 <div class="editpost">
 	<form action="action_post?sub={{ post.id }}" method="POST">
 
@@ -9,14 +8,10 @@
 		<label for="private"> Private Post </label>
 		<textarea class="inputbox" rows="25" cols="100"  name="content" > {{post.content}}</textarea><br>
 
-		<p class="text-secondary">{{post.title}} </p>
-		<p class="text-secondary">{{post.content}}</p>
-
 		<input class="inputbox" type="submit" value="Edit Post">
 	</form>
 </div>
 </div>
-{% endif %}
 {% endblock %}
 
 <!--value = {{post.title}}-->
