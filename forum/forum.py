@@ -2,7 +2,7 @@
 #from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-#from forum.links import links
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import *
@@ -16,7 +16,6 @@ from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from forum.links import links
-
 from forum.model import Subforum, Post, Comment, User, db
 
 
@@ -45,8 +44,9 @@ def subforum():
 
 @app.route('/loginform')
 def loginform():
+    flash('login here')
     return render_template("login.html")
-
+    session['_flashes'].clear()
 
 @login_required
 @app.route('/addpost')
@@ -67,7 +67,6 @@ def viewpost():
         if not current_user.is_authenticated:
             flash('Please log in to view')
             return render_template("login.html")
-        #return redirect("/")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
@@ -88,22 +87,17 @@ def viewpost():
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
-    #form = Post()
-    post_id = int(request.args.get("post"))
-    post = Post.query.filter(Post.id == post_id).first()
-    if post:
-        post.title = post.title
-        post.content = post.content
-
-        db.session.add(post)
-        db.session.commit()
-        flash('Post updated!')
-        return render_template("editpost.html", post=post, path=subforum.path)
-        #return render_template("editpost.html", post=post)
-    if not subforum:
-        return error("That subforum does not exist!")
-    return render_template("createpost.html", subforum=subforum)
-
+    #if current_user.id == Post.user_id:
+        postid = int(request.args.get("post"))
+        post = Post.query.filter(Post.id == postid).first()
+        if post:
+            db.session.add(post)
+            db.session.commit()
+            flash('Post updated!')
+            return render_template("editpost.html", post=post)
+    #else:
+        #flash("you can't edit this")
+        #return render_template("viewpost.html")
 #  ACTIONS
 
 @login_required
@@ -154,7 +148,8 @@ def comment_comment():
     if not post:
         return error("That post does not exist!")
     content = request.form['content']
-
+    #joe added content2 and changed comment
+    content2 = links(content)
     if not parent:
         return error("This parent comment does not exist!")
 
@@ -174,7 +169,7 @@ def comment_comment():
 
     postdate = datetime.datetime.now()
     #  content, postdate, user_id, post_id, parent_comment_id = None
-    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
     # this creates an instance of comment
     # go to the post table, go to the comments column, and then add the comment
     db.session.add(comment)
@@ -189,7 +184,7 @@ def action_post():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
 
     if not subforum:
-        return redirect(url_for("subforums"))
+        return redirect(url_for("subforum"))
 
     user = current_user
     title = request.form['title']
