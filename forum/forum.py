@@ -74,7 +74,7 @@ def viewpost():
         subforum.path = generateLinkPath(post.subforum.id)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc())  # no need for scalability now
 
-    ## Allen Code
+    ## Allen
     dict1 = {}
     for comment in comments:
         if comment.parent_comment_id is not None:
@@ -83,7 +83,7 @@ def viewpost():
             else:
                 dict1[comment.parent_comment_id].append(comment)
     return render_template("viewpost.html", post=post, comments=comments, dict1=dict1, path=subforum.path)
-    ## End
+
 
 @login_required
 @app.route('/edit_post', methods=['POST', 'GET'])
@@ -173,12 +173,10 @@ def comment_comment():
         content = content.replace('*like*', '\U0001F44D')
 
     postdate = datetime.datetime.now()
-
     #  content, postdate, user_id, post_id, parent_comment_id = None
     comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
     # this creates an instance of comment
     # go to the post table, go to the comments column, and then add the comment
-
     db.session.add(comment)
     db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
