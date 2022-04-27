@@ -1,8 +1,8 @@
 
-# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
+#from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-#from forum.links import links
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import *
@@ -16,7 +16,6 @@ from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from forum.links import links
-
 from forum.model import Subforum, Post, Comment, User, db
 
 
@@ -45,8 +44,9 @@ def subforum():
 
 @app.route('/loginform')
 def loginform():
+    flash('login here')
     return render_template("login.html")
-
+    session['_flashes'].clear()
 
 @login_required
 @app.route('/addpost')
@@ -55,7 +55,6 @@ def addpost():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
     if not subforum:
         return error("That subforum does not exist!")
-
     return render_template("createpost.html", subforum=subforum)
 
 
@@ -66,27 +65,39 @@ def viewpost():
 
     if post.private == True:
         if not current_user.is_authenticated:
-            return error('login to view')
-
+            flash('Please log in to view')
+            return render_template("login.html")
     if not post:
         return error("That post does not exist!")
     if not post.subforum.path:
         subforum.path = generateLinkPath(post.subforum.id)
-    comments = Comment.query.filter(Comment.post_id == postid).order_by(
-        Comment.id.desc())  # no need for scalability now
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+    comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc())  # no need for scalability now
+
+    ## Allen
+    dict1 = {}
+    for comment in comments:
+        if comment.parent_comment_id is not None:
+            if comment.parent_comment_id not in dict1:
+                dict1[comment.parent_comment_id] = [comment]
+            else:
+                dict1[comment.parent_comment_id].append(comment)
+    return render_template("viewpost.html", post=post, comments=comments, dict1=dict1, path=subforum.path)
+
 
 @login_required
-@app.route('/edit_post', methods=['GET', 'POST'])
+@app.route('/edit_post', methods=['POST', 'GET'])
 def editpost():
-    post_id = int(request.args.get("post"))
-    post = Post.query.filter(Post.id == post_id).first()
-    if post:
-        db.session.add(post)
-        db.session.commit()
-        flash('Post updated!')
-        # return render_template("editpost.html", post=post, path=subforum.path, comments=comments)
-        return render_template("editpost.html", post=post)
+    #if current_user.id == Post.user_id:
+        postid = int(request.args.get("post"))
+        post = Post.query.filter(Post.id == postid).first()
+        if post:
+            db.session.add(post)
+            db.session.commit()
+            flash('Post updated!')
+            return render_template("editpost.html", post=post)
+    #else:
+        #flash("you can't edit this")
+        #return render_template("viewpost.html")
 #  ACTIONS
 
 @login_required
@@ -98,6 +109,8 @@ def comment():
         return error("That post does not exist!")
     content = request.form['content']
 
+    #joe added content2 and changed comment
+    content2 = links(content)
 ####### Madhavi ########
     # Like button
 
@@ -112,10 +125,7 @@ def comment():
 
     postdate = datetime.datetime.now()
 
-    #joe added content2 and changed comment
-
-    content2 = links(content)
-    comment = Comment(content2, postdate)
+    comment = Comment(content2, postdate, current_user.id, post_id)
 
 
     current_user.comments.append(comment)
@@ -124,6 +134,7 @@ def comment():
     return redirect("/viewpost?post=" + str(post_id))
 
 ####### Madhavi ########
+
 @login_required
 @app.route('/comment_comment', methods=['POST', 'GET'])
 # '/action_comment' is how viewpost.html calls comment()
@@ -137,7 +148,8 @@ def comment_comment():
     if not post:
         return error("That post does not exist!")
     content = request.form['content']
-
+    #joe added content2 and changed comment
+    content2 = links(content)
     if not parent:
         return error("This parent comment does not exist!")
 
@@ -156,30 +168,29 @@ def comment_comment():
         content = content.replace('*like*', '\U0001F44D')
 
     postdate = datetime.datetime.now()
-
     #  content, postdate, user_id, post_id, parent_comment_id = None
-    comment = Comment(content, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
     # this creates an instance of comment
     # go to the post table, go to the comments column, and then add the comment
-
     db.session.add(comment)
     db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
 ####### Madhavi ########
 
 @login_required
-@app.route('/action_post', methods=['GET', 'POST'])
+@app.route('/action_post', methods=['POST'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
 
     if not subforum:
-        return redirect(url_for("subforums"))
+        return redirect(url_for("subforum"))
 
     user = current_user
     title = request.form['title']
     content = request.form['content']
-
+    #joe added content2 and added it to post instead of content for displaying links
+    content2 = links(content)
 
 #    parent = parent_obj
 
@@ -214,9 +225,8 @@ def action_post():
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
 
-    post = Post(title, content, datetime.datetime.now(), private)
-    #joe added content2 and added it to post instead of content for displaying links
-    content2 = links(content)
+    post = Post(title, content2, datetime.datetime.now(), private)
+
 
     subforum.posts.append(post)
     user.posts.append(post)
@@ -415,6 +425,6 @@ def setup():
         interpret_site_value(value)
 """
 
-
+db.create_all()
 if not Subforum.query.all():
     init_site()

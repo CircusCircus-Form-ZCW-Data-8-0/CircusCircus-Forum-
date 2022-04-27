@@ -2,11 +2,26 @@
 {% block body %}
 {{ path|safe}}
 
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
 <div class="actualpost">
 	<div class="actualposttitle">
 			<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 	</div>
 	<div style="text-align: center;">
+
 
 <!--Madhavi-->
 		{% if current_user.is_authenticated %}
@@ -45,11 +60,6 @@
 <div style="text-align: center;">
 <!--Madhavi-->
 <!--add react buttons on posts-->
-	<head>
-		<meta charset = "UTF-8">
-		<title></title>
-		<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-	</head>
 	<body>
 		<input type = "button" class = "btn btn-danger" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>
 		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>
@@ -75,12 +85,12 @@
 
 		</script>
 	</body>
-<form method = "POST" action = "/">
+<!--<form method = "POST" action = "/">
 	<input type = "button" value = "Dislike" name = "action2">
 </form>
 <form method = "POST" action = "/">
 	<input type = "button" value = "Like" name = "action1">
-</form>
+</form>-->
 <!--Madhavi-->
 
 
@@ -91,14 +101,14 @@
 	<a href="/loginform">Login or register to make a comment</a>
 	{% endif %}
 </div>
+
+
 {%if comments%}
-
-
 <!--Madhavi-->
 
 <div class="comments">
 {% for comment in comments %}
-	{% if comment.id in newdict %}
+	{% if comment.id in dict1 %}
 	<div class="comment" id= "{{ comment.id }}">
 		<div class = "parent_id" id = "{{ comment.parent_comment_id}}"></div>
 		<div class="commentuser">
@@ -107,7 +117,7 @@
 		<div class="commentcontent">
 
 
-			{{ comment.content|safe }}
+			{{ comment.content|safe}}
 		</div>
 
 
@@ -122,14 +132,14 @@
 			</form>
 		</div>
 		{% if current_user.is_authenticated %}
-		<input type="button" id= "{{ comment.id }}"  onclick="toggleSub(this.id)" value="Add a comment">
+		<input type="button" id= "{{ comment.id }}"  onclick="toggleSub(this.id)" value="Reply">
 
 		{% else %}
 		<a href="/loginform">Login or register to make a comment</a>
 		{% endif %}
 	</div>
 
-		{% for subcomment in newdict[comment.id] %}
+		{% for subcomment in dict1[comment.id] %}
 <!--this goes through comments and displays every comment-->
 <!--this is the display of the comments-->
 	<div class="comment" id = "{{ subcomment.id }}" >
@@ -140,7 +150,7 @@
 		<div class="commentcontent">
 
 
-			{{ subcomment.content|safe }}
+			{{ subcomment.content|safe}}
 		</div>
 
 		<div class="commenttime">
@@ -158,7 +168,7 @@
 		<div class="commentcontent">
 
 
-			{{ comment.content|safe }}
+			{{ comment.content|safe}}
 		</div>
 
 
@@ -173,7 +183,7 @@
 			</form>
 		</div>
 		{% if current_user.is_authenticated %}
-		<input type="button" id= "{{ comment.id }}"  onclick="toggleSub(this.id)" value="Add a comment">
+		<input type="button" id= "{{ comment.id }}"  onclick="toggleSub(this.id)" value="Reply">
 
 		{% else %}
 		<a href="/loginform">Login or register to make a comment</a>
@@ -224,115 +234,6 @@ function toggleSub(this_id){
 
 
 <!--Madhavi-->
-
-
-<!--</div>
-{%if comments%}
-
-<!--allen -->
-
-<div class="comments">
-{% for comment in comments %}
-
-	<div class="comment">
-		Allen Code here
-<div class="" id="comments-{{post.id}}">
-	<div class="card">
-		<div class="card-body" id="comments-expanded-{{post.id}}">
-			{% for comment in post.comments %}
-			<div class="d-flex justify-content-between align-items-center">
-				<div>
-				<a {{comment.user.username}}
-				   >{{comment.user.username}}</a>:
-				{{comment.content}}
-
-					<form action="/action_comment?post={{ post.id }}" method="POST">
-				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
-				<input class="button" style="margin-bottom: 1%;" type="submit" value="Reply">
-			</form>
-				</div>
-				<div>
-				<small class="text-muted"> {{comment.get_time_string()}}</small>
-			</div>
-			</div>
-			{% endfor %}
-	</div>
-</div>
-
-
-<p class="card-text">
-        {% if post.comments|length > 0 %}
-        <a data-bs-toggle="collapse" href="#comments-{{post.id}}" role="button">
-          <small>View {{post.comments|length}} Comments</small>
-        </a>
-        {% else %}
-        <small class="text-muted">No Comments</small>
-        {% endif %}
-      </p>
-
-
-		<!--
-		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) -
-		</div>
-		<div class="commentcontent">
-			{{ comment.content }}
-		</div>
-
-		<div class="commenttime">
-			{{ comment.get_time_string() }}
-		</div>
-
-			-->
-
-		</div>
-	</div>
-	<br>
-{% endfor %}
-</div>
-
-<!--
-{% for comment in comments %}
-	
-	<div class="comment">
-		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
-		</div>
-		<div class="commentcontent">
-			{{ comment.content | safe }}
-		</div>
-		
-		<div class="commenttime">
-			{{ comment.get_time_string() }}
-		</div>
-			<form action="/action_comment?post={{ post.id }}" method="POST">
-				<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
-				<input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Reply">
-			</form>
-		</div>
-	</div>
-	<br>
-	
-{% endfor %}
-</div>
-{% endif %}
--->
-<script type="text/javascript">
-function toggle(){
-	var div = document.getElementById("addcomment");
-	var button = document.getElementById("displayaddcomment")
-	if(div.style.display == "none" || div.style.display.trim() == ""){
-		div.style.display = "inline";
-		button.value="Hide";
-	}else{
-		div.style.display = "none";
-		button.value="Add a comment"
-	}
-	
-}
-</script>
-
-
 {% endblock %}-->
 
 
