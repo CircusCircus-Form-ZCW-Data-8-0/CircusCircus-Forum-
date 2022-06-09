@@ -1,5 +1,7 @@
+
+
 .page{
-	font-family: Verdana;
+	font-family: Monaco;
 	font-style: normal;
 	font-size: 14pt;
 
@@ -11,9 +13,10 @@
 	padding-left: 3%;
 	padding-right: 3%;
 
+	background-color: #E0FFFF;
 }
 .header{
-	border: 1px solid black;
+	border: 3px solid black;
 	overflow: hidden;
 	vertical-align: middle;
 	padding: 0.5%;
@@ -56,7 +59,7 @@
 
 }
 .subforumlisting{
-	border-bottom: 1px solid gray;
+	border-bottom: 2px solid gray;
 	padding: 1%;
 	margin-bottom: 1%;
 }
@@ -65,7 +68,7 @@
 	margin-top: 0.5%;
 }
 .errors{
-	border-bottom: 1px solid black;
+	border-bottom: 2px solid black;
 	margin-top: 2%;
 }
 .error{
@@ -87,7 +90,7 @@
 	margin-top: none;
 	padding-bottom: none;
 	margin-bottom: 0.5%;
-	border: 1px solid black;
+	border: 2px solid black;
 	font-size: 15pt;
 }
 .subforumheadertitle{
@@ -99,7 +102,7 @@
 }
 .post{
 	padding: 1%;
-	border-bottom: 1px solid gray;
+	border-bottom: 2px solid gray;
 }
 .postusername{
 	font-style: italic;
@@ -121,7 +124,7 @@
 	padding: 1%;
 }
 .subsubforums{
-	border: 1px solid black;
+	border: 2px solid black;
 	padding: 0.5%;
 	margin-top: 0.5%;
 	padding-left: 1%;
@@ -141,13 +144,13 @@
 }
 .actualpost{
 	padding: 1%;
-	border: 1px solid black;
+	border: 2px solid black;
 	border-collapse: collapse;
 	margin-bottom: 1%;
 }
 .actualposttitle{
 	border-collapse: collapse;
-	border-bottom: 1px solid black;
+	border-bottom: 2px solid black;
 	padding: 1%;
 	font-size: 16pt;
 	font-weight: bold;
@@ -168,12 +171,12 @@
 	white-space: pre-line;
 }
 .comments{
-	border: 1px solid gray;
+	border: 2px solid gray;
 	padding: 1%;
 	margin-top: 1%;
 }
 .comment{
-	border-bottom: 1px solid gray;
+	border-bottom: 2px solid gray;
 }
 .commentuser{
 	display: inline;
